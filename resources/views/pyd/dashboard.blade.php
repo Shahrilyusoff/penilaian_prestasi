@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-md-12">
-            <h2 class="fw-bold">Dashboard Pegawai Penilai Pertama (PPP)</h2>
+            <h2 class="fw-bold">Dashboard Pegawai Yang Dinilai (PYD)</h2>
         </div>
     </div>
 
@@ -12,7 +12,7 @@
         <div class="col-md-6 mb-4">
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">SKT Untuk Penilaian</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">SKT Untuk Dilengkapkan</h6>
                 </div>
                 <div class="card-body">
                     @if($pendingSkts->count() > 0)
@@ -20,15 +20,23 @@
                             @foreach($pendingSkts as $skt)
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <div>
-                                        <strong>{{ $skt->pyd->name }}</strong><br>
-                                        <small class="text-muted">{{ $skt->evaluationPeriod->tahun }}</small>
+                                        <strong>{{ $skt->evaluationPeriod->tahun }}</strong><br>
+                                        <small class="text-muted">PPP: {{ $skt->ppp->name }}</small>
                                     </div>
-                                    <a href="{{ route('skt.show', $skt) }}" class="btn btn-sm btn-primary">Lihat</a>
+                                    <div>
+                                        <a href="{{ route('skt.show', $skt) }}" class="btn btn-sm btn-primary">
+                                            @if($skt->status == 'draf')
+                                                <i class="fas fa-edit"></i> Lengkapkan
+                                            @else
+                                                <i class="fas fa-eye"></i> Lihat
+                                            @endif
+                                        </a>
+                                    </div>
                                 </li>
                             @endforeach
                         </ul>
                     @else
-                        <p class="text-muted">Tiada SKT yang memerlukan penilaian anda.</p>
+                        <p class="text-muted">Tiada SKT yang perlu dilengkapkan.</p>
                     @endif
                 </div>
             </div>
@@ -45,15 +53,23 @@
                             @foreach($pendingEvaluations as $evaluation)
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     <div>
-                                        <strong>{{ $evaluation->pyd->name }}</strong><br>
-                                        <small class="text-muted">{{ $evaluation->evaluationPeriod->tahun }}</small>
+                                        <strong>{{ $evaluation->evaluationPeriod->tahun }}</strong><br>
+                                        <small class="text-muted">PPP: {{ $evaluation->ppp->name }}</small>
                                     </div>
-                                    <a href="{{ route('evaluations.show', $evaluation) }}" class="btn btn-sm btn-primary">Lihat</a>
+                                    <div>
+                                        <a href="{{ route('evaluations.show', $evaluation) }}" class="btn btn-sm btn-primary">
+                                            @if($evaluation->status == 'draf_pyd')
+                                                <i class="fas fa-edit"></i> Lengkapkan
+                                            @else
+                                                <i class="fas fa-eye"></i> Lihat
+                                            @endif
+                                        </a>
+                                    </div>
                                 </li>
                             @endforeach
                         </ul>
                     @else
-                        <p class="text-muted">Tiada penilaian yang memerlukan tindakan anda.</p>
+                        <p class="text-muted">Tiada penilaian yang perlu dilengkapkan.</p>
                     @endif
                 </div>
             </div>
@@ -72,18 +88,20 @@
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>PYD</th>
                                         <th>Tempoh</th>
+                                        <th>PPP</th>
+                                        <th>PPK</th>
                                         <th>Status</th>
-                                        <th>Markah PPP</th>
+                                        <th>Markah</th>
                                         <th>Tindakan</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($recentEvaluations as $evaluation)
                                         <tr>
-                                            <td>{{ $evaluation->pyd->name }}</td>
                                             <td>{{ $evaluation->evaluationPeriod->tahun }}</td>
+                                            <td>{{ $evaluation->ppp->name }}</td>
+                                            <td>{{ $evaluation->ppk->name }}</td>
                                             <td>
                                                 @if($evaluation->status == 'selesai')
                                                     <span class="badge bg-success">Selesai</span>
@@ -92,15 +110,15 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                @if($evaluation->status != 'draf_pyd')
-                                                    {{ $evaluation->calculateTotalScore()['ppp'] }}%
+                                                @if($evaluation->status == 'selesai')
+                                                    {{ $evaluation->calculateTotalScore()['purata'] }}%
                                                 @else
                                                     -
                                                 @endif
                                             </td>
                                             <td>
                                                 <a href="{{ route('evaluations.show', $evaluation) }}" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-eye"></i>
+                                                    <i class="fas fa-eye"></i> Lihat
                                                 </a>
                                             </td>
                                         </tr>

@@ -74,4 +74,24 @@ class Evaluation extends Model
             'purata' => ($totalPPP + $totalPPK) / 2
         ];
     }
+
+    public function calculateSectionScore($section, $group = null)
+    {
+        $query = $this->scores()->whereHas('criteria', function($q) use ($section, $group) {
+            $q->where('bahagian', $section);
+            if ($group) {
+                $q->where('kumpulan_pyd', $group);
+            }
+        });
+
+        $totalPPP = $query->sum('markah_ppp') * $this->scores->first()->criteria->wajaran / 100;
+        $totalPPK = $query->sum('markah_ppk') * $this->scores->first()->criteria->wajaran / 100;
+        $totalWeight = $query->count() * $this->scores->first()->criteria->wajaran;
+
+        return [
+            'ppp' => $totalPPP ? round($totalPPP / $query->count(), 2) : 0,
+            'ppk' => $totalPPK ? round($totalPPK / $query->count(), 2) : 0,
+            'total' => $totalWeight
+        ];
+    }
 }

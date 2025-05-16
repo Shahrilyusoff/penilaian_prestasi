@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-md-12">
-            <h2 class="fw-bold">Dashboard</h2>
+            <h2 class="fw-bold">Dashboard Pentadbir</h2>
         </div>
     </div>
 
@@ -100,6 +100,9 @@
                                 <li class="list-group-item">
                                     <strong>{{ $period->tahun }}</strong><br>
                                     {{ $period->tarikh_mula->format('d/m/Y') }} - {{ $period->tarikh_tamat->format('d/m/Y') }}
+                                    <span class="badge bg-{{ $period->status ? 'success' : 'secondary' }} float-end">
+                                        {{ $period->status ? 'Aktif' : 'Tidak Aktif' }}
+                                    </span>
                                 </li>
                             @endforeach
                         </ul>
@@ -116,7 +119,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">Aktiviti Terkini</h6>
                 </div>
                 <div class="card-body">
-                    @if($recentActivities->count() > 0)
+                    @if(isset($recentActivities) && $recentActivities->count() > 0)
                         <div class="list-group">
                             @foreach($recentActivities as $activity)
                                 <div class="list-group-item">

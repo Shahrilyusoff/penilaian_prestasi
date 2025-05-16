@@ -38,7 +38,7 @@ class AuthController extends Controller
     }
 
     public function dashboard()
-   {
+    {
         $user = Auth::user();
         
         if ($user->isSuperAdmin() || $user->isAdmin()) {
@@ -47,10 +47,10 @@ class AuthController extends Controller
             $completedEvaluations = Evaluation::where('status', 'selesai')->count();
             $totalUsers = User::count();
             
-            // Get recent activities (if activitylog is installed)
+            // Get recent activities if activitylog is installed
             $recentActivities = [];
-            if (class_exists(Activity::class)) {
-                $recentActivities = Activity::with('causer')
+            if (class_exists(\Spatie\Activitylog\Models\Activity::class)) {
+                $recentActivities = \Spatie\Activitylog\Models\Activity::with('causer')
                     ->latest()
                     ->take(5)
                     ->get();
@@ -66,29 +66,58 @@ class AuthController extends Controller
         } elseif ($user->isPPP()) {
             $pendingSkts = Skt::where('ppp_id', $user->id)
                 ->where('status', 'diserahkan')
-                ->get();
-            $pendingEvaluations = Evaluation::where('ppp_id', $user->id)
-                ->where('status', 'draf_ppp')
+                ->with(['pyd', 'evaluationPeriod'])
                 ->get();
                 
-            return view('ppp.dashboard', compact('pendingSkts', 'pendingEvaluations'));
+            $pendingEvaluations = Evaluation::where('ppp_id', $user->id)
+                ->where('status', 'draf_ppp')
+                ->with(['pyd', 'evaluationPeriod'])
+                ->get();
+                
+            $recentEvaluations = Evaluation::where('ppp_id', $user->id)
+                ->whereIn('status', ['draf_ppk', 'selesai'])
+                ->with(['pyd', 'evaluationPeriod'])
+                ->latest()
+                ->take(5)
+                ->get();
+                
+            return view('ppp.dashboard', compact('pendingSkts', 'pendingEvaluations', 'recentEvaluations'));
         } elseif ($user->isPPK()) {
             $pendingEvaluations = Evaluation::where('ppk_id', $user->id)
                 ->where('status', 'draf_ppk')
+                ->with(['pyd', 'ppp', 'evaluationPeriod'])
                 ->get();
                 
-            return view('ppk.dashboard', compact('pendingEvaluations'));
+            $recentEvaluations = Evaluation::where('ppk_id', $user->id)
+                ->where('status', 'selesai')
+                ->with(['pyd', 'ppp', 'evaluationPeriod'])
+                ->latest()
+                ->take(5)
+                ->get();
+                
+            return view('ppk.dashboard', compact('pendingEvaluations', 'recentEvaluations'));
         } elseif ($user->isPYD()) {
             $pendingSkts = Skt::where('pyd_id', $user->id)
                 ->where('status', 'draf')
-                ->get();
-            $pendingEvaluations = Evaluation::where('pyd_id', $user->id)
-                ->where('status', 'draf_pyd')
+                ->with(['ppp', 'evaluationPeriod'])
                 ->get();
                 
-            return view('pyd.dashboard', compact('pendingSkts', 'pendingEvaluations'));
+            $pendingEvaluations = Evaluation::where('pyd_id', $user->id)
+                ->where('status', 'draf_pyd')
+                ->with(['ppp', 'ppk', 'evaluationPeriod'])
+                ->get();
+                
+            $recentEvaluations = Evaluation::where('pyd_id', $user->id)
+                ->where('status', 'selesai')
+                ->with(['ppp', 'ppk', 'evaluationPeriod'])
+                ->latest()
+                ->take(5)
+                ->get();
+                
+            return view('pyd.dashboard', compact('pendingSkts', 'pendingEvaluations', 'recentEvaluations'));
         }
         
         return redirect('/');
     }
+    
 }

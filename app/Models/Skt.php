@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Skt extends Model
 {
     use HasFactory;
-
+    protected $table = 'skt';
+    
     protected $fillable = [
         'evaluation_period_id',
         'pyd_id',

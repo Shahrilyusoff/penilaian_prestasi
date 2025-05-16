@@ -1,0 +1,126 @@
+// Sidebar styling
+.sidebar {
+    width: $sidebar-width;
+    min-height: 100vh;
+    background-color: $sidebar-bg;
+    color: $sidebar-color;
+    transition: all 0.3s;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    padding-top: 56px; // Height of navbar
+    
+    .sidebar-header {
+        padding: 20px;
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+    
+    .sidebar-menu {
+        padding-left: 0;
+        list-style: none;
+        
+        li {
+            position: relative;
+            
+            a {
+                padding: 12px 20px;
+                display: block;
+                color: $sidebar-color;
+                text-decoration: none;
+                transition: all 0.3s;
+                
+                &:hover {
+                    color: $sidebar-active-color;
+                    background-color: $sidebar-active-bg;
+                }
+                
+                i {
+                    margin-right: 10px;
+                }
+            }
+            
+            &.active > a {
+                color: $sidebar-active-color;
+                background-color: $sidebar-active-bg;
+            }
+        }
+    }
+}
+
+// Main content area
+.main-content {
+    margin-left: $sidebar-width;
+    padding: 20px;
+    min-height: calc(100vh - 56px);
+    background-color: $body-bg;
+}
+
+// Navbar
+.navbar {
+    padding: 0.5rem 1rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1001;
+    
+    .navbar-brand {
+        margin-left: $sidebar-width;
+    }
+}
+
+// Cards
+.card {
+    margin-bottom: 20px;
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+        font-weight: 600;
+    }
+}
+
+// Forms
+.form-control, .form-select {
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+}
+
+// Buttons
+.btn {
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+}
+
+// Tables
+.table {
+    th {
+        font-weight: 600;
+    }
+}
+
+// Alerts
+.alert {
+    border-radius: 0.25rem;
+    padding: 0.75rem 1.25rem;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .sidebar {
+        margin-left: -$sidebar-width;
+        
+        &.active {
+            margin-left: 0;
+        }
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .navbar-brand {
+        margin-left: 0 !important;
+    }
+}

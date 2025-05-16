@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\EvaluationPeriod;
 use Illuminate\Http\Request;
+use Spatie\Activitylog\Facades\Activity;
 
 class EvaluationPeriodController extends Controller
 {
@@ -26,13 +27,18 @@ class EvaluationPeriodController extends Controller
             'tarikh_tamat' => 'required|date|after:tarikh_mula',
         ]);
 
-        EvaluationPeriod::create([
+        $period = EvaluationPeriod::create([
             'tahun' => $request->tahun,
             'tarikh_mula' => $request->tarikh_mula,
             'tarikh_tamat' => $request->tarikh_tamat,
             'status' => $request->has('status'),
             'boleh_ubah_selepas_tamat' => $request->has('boleh_ubah_selepas_tamat'),
         ]);
+
+        activity()
+            ->causedBy(auth()->user())
+            ->performedOn($period)
+            ->log('created evaluation period');
 
         return redirect()->route('evaluation-periods.index')
             ->with('success', 'Tempoh penilaian berjaya dicipta.');

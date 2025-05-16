@@ -15,19 +15,20 @@ class EvaluationController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         if ($user->isPYD()) {
-            $evaluations = Evaluation::where('pyd_id', $user->id)->get();
+            $evaluations = Evaluation::where('pyd_id', $user->id)->paginate(10);
         } elseif ($user->isPPP()) {
-            $evaluations = Evaluation::where('ppp_id', $user->id)->get();
+            $evaluations = Evaluation::where('ppp_id', $user->id)->paginate(10);
         } elseif ($user->isPPK()) {
-            $evaluations = Evaluation::where('ppk_id', $user->id)->get();
+            $evaluations = Evaluation::where('ppk_id', $user->id)->paginate(10);
         } else {
-            $evaluations = Evaluation::all();
+            $evaluations = Evaluation::paginate(10);
         }
-        
+
         return view('evaluations.index', compact('evaluations'));
     }
+
 
     public function create()
     {

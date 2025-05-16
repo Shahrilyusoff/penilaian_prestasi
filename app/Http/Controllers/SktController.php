@@ -13,17 +13,23 @@ class SktController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
+
         if ($user->isPYD()) {
-            $skts = Skt::where('pyd_id', $user->id)->get();
+            $skts = Skt::with(['pyd', 'ppp', 'evaluationPeriod'])
+                ->where('pyd_id', $user->id)
+                ->paginate(10);
         } elseif ($user->isPPP()) {
-            $skts = Skt::where('ppp_id', $user->id)->get();
+            $skts = Skt::with(['pyd', 'ppp', 'evaluationPeriod'])
+                ->where('ppp_id', $user->id)
+                ->paginate(10);
         } else {
-            $skts = Skt::all();
+            $skts = Skt::with(['pyd', 'ppp', 'evaluationPeriod'])
+                ->paginate(10);
         }
-        
+
         return view('skt.index', compact('skts'));
     }
+
 
     public function create()
     {

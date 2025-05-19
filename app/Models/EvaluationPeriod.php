@@ -17,6 +17,12 @@ class EvaluationPeriod extends Model
         'boleh_ubah_selepas_tamat'
     ];
 
+    protected $casts = [
+        'tarikh_mula' => 'datetime',
+        'tarikh_tamat' => 'datetime',
+    ];
+
+
     public function evaluations()
     {
         return $this->hasMany(Evaluation::class);

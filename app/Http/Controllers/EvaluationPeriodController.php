@@ -10,8 +10,8 @@ class EvaluationPeriodController extends Controller
 {
     public function index()
     {
-        $periods = EvaluationPeriod::all();
-        return view('admin.evaluation_periods.index', compact('periods'));
+        $evaluationPeriods = EvaluationPeriod::paginate(10);
+        return view('admin.evaluation_periods.index', compact('evaluationPeriods'));
     }
 
     public function create()

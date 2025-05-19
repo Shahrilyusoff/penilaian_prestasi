@@ -46,21 +46,17 @@ class SktController extends Controller
             'evaluation_period_id' => 'required|exists:evaluation_periods,id',
             'pyd_id' => 'required|exists:users,id',
             'ppp_id' => 'required|exists:users,id',
-            'aktiviti_projek' => 'required|string',
-            'petunjuk_prestasi' => 'required|string',
         ]);
 
         Skt::create([
             'evaluation_period_id' => $request->evaluation_period_id,
             'pyd_id' => $request->pyd_id,
             'ppp_id' => $request->ppp_id,
-            'aktiviti_projek' => $request->aktiviti_projek,
-            'petunjuk_prestasi' => $request->petunjuk_prestasi,
-            'status' => 'draf',
+            'status' => 'draf', // Set to draft since PYD needs to fill details
         ]);
 
         return redirect()->route('skt.index')
-            ->with('success', 'SKT berjaya dicipta.');
+            ->with('success', 'SKT berjaya dicipta. PYD perlu mengisi aktiviti dan petunjuk prestasi.');
     }
 
     public function show(Skt $skt)

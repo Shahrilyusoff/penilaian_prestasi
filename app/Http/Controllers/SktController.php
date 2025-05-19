@@ -79,20 +79,19 @@ class SktController extends Controller
             'evaluation_period_id' => 'required|exists:evaluation_periods,id',
             'pyd_id' => 'required|exists:users,id',
             'ppp_id' => 'required|exists:users,id',
-            'aktiviti_projek' => 'required|string',
-            'petunjuk_prestasi' => 'required|string',
+            'aktiviti_projek' => 'required|array|min:1',
+            'petunjuk_prestasi' => 'required|array|min:1',
         ]);
 
         $skt->update([
             'evaluation_period_id' => $request->evaluation_period_id,
             'pyd_id' => $request->pyd_id,
             'ppp_id' => $request->ppp_id,
-            'aktiviti_projek' => $request->aktiviti_projek,
-            'petunjuk_prestasi' => $request->petunjuk_prestasi,
+            'aktiviti_projek' => json_encode($request->aktiviti_projek),
+            'petunjuk_prestasi' => json_encode($request->petunjuk_prestasi),
         ]);
 
-        return redirect()->route('skt.index')
-            ->with('success', 'SKT berjaya dikemaskini.');
+        return redirect()->route('skt.index')->with('success', 'SKT berjaya dikemaskini.');
     }
 
     public function destroy(Skt $skt)

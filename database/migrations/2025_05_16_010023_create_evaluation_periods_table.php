@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('tahun');
             $table->date('tarikh_mula');
             $table->date('tarikh_tamat');
-            $table->boolean('status')->default(true);
             $table->boolean('boleh_ubah_selepas_tamat')->default(false);
             $table->timestamps();
         });

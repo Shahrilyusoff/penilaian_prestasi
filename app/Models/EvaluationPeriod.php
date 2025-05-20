@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class EvaluationPeriod extends Model
 {
@@ -13,7 +14,6 @@ class EvaluationPeriod extends Model
         'tahun',
         'tarikh_mula',
         'tarikh_tamat',
-        'status',
         'boleh_ubah_selepas_tamat'
     ];
 
@@ -22,6 +22,7 @@ class EvaluationPeriod extends Model
         'tarikh_tamat' => 'datetime',
     ];
 
+    protected $appends = ['is_active'];
 
     public function evaluations()
     {
@@ -32,4 +33,13 @@ class EvaluationPeriod extends Model
     {
         return $this->hasMany(Skt::class);
     }
+
+    public function getIsActiveAttribute()
+    {
+        $today = Carbon::today();
+        return $today->between($this->tarikh_mula, $this->tarikh_tamat);
+    }
+
+    // Remove the status column from database queries
+    protected $hidden = ['status'];
 }

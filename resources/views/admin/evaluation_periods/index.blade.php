@@ -33,7 +33,7 @@
                             <td>{{ $period->tarikh_mula->format('d/m/Y') }}</td>
                             <td>{{ $period->tarikh_tamat->format('d/m/Y') }}</td>
                             <td>
-                                @if($period->status)
+                                @if($period->is_active)
                                     <span class="badge bg-success">Aktif</span>
                                 @else
                                     <span class="badge bg-secondary">Tidak Aktif</span>

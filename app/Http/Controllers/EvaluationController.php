@@ -43,14 +43,15 @@ class EvaluationController extends Controller
 
     public function create()
     {
-        $periods = EvaluationPeriod::whereDate('tarikh_mula', '<=', now())
-            ->whereDate('tarikh_tamat', '>=', now())
+        $evaluationPeriods = EvaluationPeriod::whereDate('tarikh_mula_penilaian', '<=', now())
+            ->whereDate('tarikh_tamat_penilaian', '>=', now())
             ->get();
+
         $pyds = User::where('peranan', 'pyd')->get();
         $ppps = User::where('peranan', 'ppp')->get();
         $ppks = User::where('peranan', 'ppk')->get();
-        
-        return view('evaluations.create', compact('periods', 'pyds', 'ppps', 'ppks'));
+
+        return view('evaluations.create', compact('evaluationPeriods', 'pyds', 'ppps', 'ppks'));
     }
 
     public function store(Request $request)

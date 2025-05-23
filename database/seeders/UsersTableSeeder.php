@@ -52,7 +52,7 @@ class UsersTableSeeder extends Seeder
 
         // PYD (Pegawai Yang Dinilai) - Pengurusan
         User::create([
-            'name' => 'PYD Pengurusan 1',
+            'name' => 'PYD Pengurusan',
             'email' => 'pyd1@example.com',
             'password' => Hash::make('password'),
             'peranan' => 'pyd',
@@ -64,7 +64,7 @@ class UsersTableSeeder extends Seeder
 
         // PYD (Pegawai Yang Dinilai) - Sokongan I
         User::create([
-            'name' => 'PYD Sokongan I 1',
+            'name' => 'PYD Sokongan I',
             'email' => 'pyd2@example.com',
             'password' => Hash::make('password'),
             'peranan' => 'pyd',
@@ -76,7 +76,7 @@ class UsersTableSeeder extends Seeder
 
         // PYD (Pegawai Yang Dinilai) - Sokongan II
         User::create([
-            'name' => 'PYD Sokongan II 1',
+            'name' => 'PYD Sokongan II',
             'email' => 'pyd3@example.com',
             'password' => Hash::make('password'),
             'peranan' => 'pyd',

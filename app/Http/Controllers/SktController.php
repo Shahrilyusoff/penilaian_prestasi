@@ -101,8 +101,8 @@ class SktController extends Controller
 
     public function edit(Skt $skt)
     {
-        $periods = EvaluationPeriod::whereDate('tarikh_mula', '<=', now())
-            ->whereDate('tarikh_tamat', '>=', now())
+        $periods = EvaluationPeriod::whereDate('tarikh_mula_penilaian', '<=', now())
+            ->whereDate('tarikh_tamat_penilaian', '>=', now())
             ->get();
         $pyds = User::where('peranan', 'pyd')->get();
         $ppps = User::where('peranan', 'ppp')->get();

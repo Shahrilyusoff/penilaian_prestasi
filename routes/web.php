@@ -55,3 +55,10 @@ Route::middleware('auth')->group(function () {
     Route::post('evaluations/{evaluation}/submit-ppp', [EvaluationController::class, 'submitPPP'])->name('evaluations.submit-ppp');
     Route::post('evaluations/{evaluation}/submit-ppk', [EvaluationController::class, 'submitPPK'])->name('evaluations.submit-ppk');
 });
+
+Route::prefix('reports')->group(function () {
+    Route::get('/', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/skt', [ReportController::class, 'generateSktReport'])->name('reports.skt');
+    Route::get('/evaluation', [ReportController::class, 'generateEvaluationReport'])->name('reports.evaluation');
+    Route::get('/individual', [ReportController::class, 'generateIndividualReport'])->name('reports.individual');
+});

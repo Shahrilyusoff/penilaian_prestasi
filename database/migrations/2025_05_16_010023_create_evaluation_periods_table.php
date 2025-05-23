@@ -13,11 +13,17 @@ return new class extends Migration
     {
         Schema::create('evaluation_periods', function (Blueprint $table) {
             $table->id();
+            $table->string('jenis'); // Removed 'after'
             $table->string('tahun');
-            $table->date('tarikh_mula');
-            $table->date('tarikh_tamat');
-            $table->boolean('boleh_ubah_selepas_tamat')->default(false);
-            $table->timestamps();
+            $table->date('tarikh_mula_awal')->nullable();
+            $table->date('tarikh_tamat_awal')->nullable();
+            $table->date('tarikh_mula_pertengahan')->nullable();
+            $table->date('tarikh_tamat_pertengahan')->nullable();
+            $table->date('tarikh_mula_akhir')->nullable();
+            $table->date('tarikh_tamat_akhir')->nullable();
+            $table->date('tarikh_mula_penilaian')->nullable();
+            $table->date('tarikh_tamat_penilaian')->nullable();
+            $table->timestamps(); // Recommended to track record creation and updates
         });
     }
 
@@ -29,3 +35,4 @@ return new class extends Migration
         Schema::dropIfExists('evaluation_periods');
     }
 };
+

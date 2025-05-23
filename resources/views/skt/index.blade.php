@@ -6,13 +6,29 @@
         <div class="col-md-6">
             <h2 class="fw-bold">Senarai SKT</h2>
         </div>
-        @can('create', App\Models\Skt::class)
         <div class="col-md-6 text-end">
+            <div class="dropdown d-inline-block me-2">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                        id="yearDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Tahun: {{ $year }}
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="yearDropdown">
+                    @foreach($availableYears as $availableYear)
+                        <li>
+                            <a class="dropdown-item" href="{{ route('skt.index', ['year' => $availableYear]) }}">
+                                {{ $availableYear }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+            
+            @can('create', App\Models\Skt::class)
             <a href="{{ route('skt.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus me-1"></i> Tambah SKT
             </a>
+            @endcan
         </div>
-        @endcan
     </div>
 
     <div class="card shadow">
@@ -22,8 +38,8 @@
                     <thead class="table-light">
                         <tr>
                             <th>PYD</th>
+                            <th>Tahun</th>
                             <th>PPP</th>
-                            <th>Tempoh</th>
                             <th>Status</th>
                             <th>Tindakan</th>
                         </tr>
@@ -32,15 +48,15 @@
                         @forelse($skts as $skt)
                         <tr>
                             <td>{{ $skt->pyd->name }}</td>
-                            <td>{{ $skt->ppp->name }}</td>
                             <td>{{ $skt->evaluationPeriod->tahun }}</td>
+                            <td>{{ $skt->ppp->name }}</td>
                             <td>
-                                @if($skt->status == 'disahkan')
-                                    <span class="badge bg-success">Disahkan</span>
-                                @elseif($skt->status == 'diserahkan')
-                                    <span class="badge bg-info">Diserahkan</span>
+                                @if($skt->status === 'draf')
+                                    <span class="badge bg-secondary">Draf</span>
+                                @elseif($skt->status === 'diserahkan')
+                                    <span class="badge bg-warning">Diserahkan</span>
                                 @else
-                                    <span class="badge bg-warning text-dark">Draf</span>
+                                    <span class="badge bg-success">Disahkan</span>
                                 @endif
                             </td>
                             <td>
@@ -74,7 +90,7 @@
             
             @if($skts->hasPages())
             <div class="d-flex justify-content-center mt-4">
-                {{ $skts->links() }}
+                {{ $skts->appends(['year' => $year])->links() }}
             </div>
             @endif
         </div>

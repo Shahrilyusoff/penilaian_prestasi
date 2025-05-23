@@ -42,9 +42,20 @@ class AuthController extends Controller
         $user = Auth::user();
         
         if ($user->isSuperAdmin() || $user->isAdmin()) {
-            $activePeriods = EvaluationPeriod::whereDate('tarikh_mula', '<=', now())
-                ->whereDate('tarikh_tamat', '>=', now())
-                ->get();
+            $today = now();
+
+            $activePeriods = EvaluationPeriod::where(function ($query) use ($today) {
+                $query->where(function ($q) use ($today) {
+                    $q->where('jenis', 'skt')
+                        ->whereDate('tarikh_mula_awal', '<=', $today)
+                        ->whereDate('tarikh_tamat_akhir', '>=', $today);
+                })->orWhere(function ($q) use ($today) {
+                    $q->where('jenis', 'penilaian')
+                        ->whereDate('tarikh_mula_penilaian', '<=', $today)
+                        ->whereDate('tarikh_tamat_penilaian', '>=', $today);
+                });
+            })->get();
+
             $submittedSkts = Skt::where('status', 'diserahkan')->count();
             $completedEvaluations = Evaluation::where('status', 'selesai')->count();
             $totalUsers = User::count();

@@ -40,6 +40,7 @@ Route::middleware(['auth', 'can:admin'])->group(function () {
 // SKT Routes
 Route::middleware('auth')->group(function () {
     Route::resource('skt', SktController::class);
+    Route::get('skt', [SktController::class, 'index'])->name('skt.index');
     Route::post('skt/{skt}/submit', [SktController::class, 'submit'])->name('skt.submit');
     Route::post('skt/{skt}/approve', [SktController::class, 'approve'])->name('skt.approve');
     Route::post('skt/{skt}/mid-year-review', [SktController::class, 'midYearReview'])->name('skt.mid-year-review');
@@ -49,6 +50,7 @@ Route::middleware('auth')->group(function () {
 // Evaluation Routes
 Route::middleware('auth')->group(function () {
     Route::resource('evaluations', EvaluationController::class);
+    Route::get('evaluations', [EvaluationController::class, 'index'])->name('evaluations.index');
     Route::post('evaluations/{evaluation}/submit-pyd', [EvaluationController::class, 'submitPYD'])->name('evaluations.submit-pyd');
     Route::post('evaluations/{evaluation}/submit-ppp', [EvaluationController::class, 'submitPPP'])->name('evaluations.submit-ppp');
     Route::post('evaluations/{evaluation}/submit-ppk', [EvaluationController::class, 'submitPPK'])->name('evaluations.submit-ppk');

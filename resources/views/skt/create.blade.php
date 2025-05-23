@@ -24,7 +24,10 @@
                                 <option value="">-- Pilih Tempoh Penilaian --</option>
                                 @foreach($periods as $period)
                                     <option value="{{ $period->id }}" {{ old('evaluation_period_id') == $period->id ? 'selected' : '' }}>
-                                        {{ $period->tahun }} ({{ $period->tarikh_mula->format('d/m/Y') }} - {{ $period->tarikh_tamat->format('d/m/Y') }})
+                                        {{ $period->tahun }} 
+                                        ({{ $period->tarikh_mula?->format('d/m/Y') ?? 'Tarikh mula tiada' }} 
+                                        - 
+                                        {{ $period->tarikh_tamat?->format('d/m/Y') ?? 'Tarikh tamat tiada' }})
                                     </option>
                                 @endforeach
                             </select>

@@ -12,23 +12,34 @@ use Illuminate\Support\Facades\Auth;
 
 class EvaluationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $year = $request->input('year', date('Y'));
+        
+        $query = Evaluation::with(['pyd', 'ppp', 'ppk', 'evaluationPeriod'])
+            ->whereHas('evaluationPeriod', function($q) use ($year) {
+                $q->where('tahun', $year);
+            });
+        
         $user = Auth::user();
-
+        
         if ($user->isPYD()) {
-            $evaluations = Evaluation::where('pyd_id', $user->id)->paginate(10);
+            $query->where('pyd_id', $user->id);
         } elseif ($user->isPPP()) {
-            $evaluations = Evaluation::where('ppp_id', $user->id)->paginate(10);
+            $query->where('ppp_id', $user->id);
         } elseif ($user->isPPK()) {
-            $evaluations = Evaluation::where('ppk_id', $user->id)->paginate(10);
-        } else {
-            $evaluations = Evaluation::paginate(10);
+            $query->where('ppk_id', $user->id);
         }
-
-        return view('evaluations.index', compact('evaluations'));
+        
+        $evaluations = $query->paginate(10);
+        
+        $availableYears = EvaluationPeriod::select('tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+        
+        return view('evaluations.index', compact('evaluations', 'availableYears', 'year'));
     }
-
 
     public function create()
     {

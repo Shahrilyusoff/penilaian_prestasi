@@ -14,27 +14,73 @@
     </div>
 
     <div class="card shadow">
+        <div class="card-header py-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="btn-group" role="group">
+                        <a href="{{ route('evaluation-periods.index', ['year' => $year]) }}" 
+                           class="btn btn-outline-primary {{ empty($jenis) ? 'active' : '' }}">
+                            Semua
+                        </a>
+                        <a href="{{ route('evaluation-periods.index', ['year' => $year, 'jenis' => 'skt']) }}" 
+                           class="btn btn-outline-primary {{ $jenis === 'skt' ? 'active' : '' }}">
+                            SKT
+                        </a>
+                        <a href="{{ route('evaluation-periods.index', ['year' => $year, 'jenis' => 'penilaian']) }}" 
+                           class="btn btn-outline-primary {{ $jenis === 'penilaian' ? 'active' : '' }}">
+                            Penilaian Prestasi
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="dropdown d-inline-block me-2">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                id="yearDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Tahun: {{ $year }}
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="yearDropdown">
+                            @foreach($availableYears as $availableYear)
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('evaluation-periods.index', ['year' => $availableYear, 'jenis' => $jenis]) }}">
+                                        {{ $availableYear }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead class="table-light">
                         <tr>
                             <th>Tahun</th>
-                            <th>Tarikh Mula</th>
-                            <th>Tarikh Tamat</th>
+                            <th>Jenis</th>
+                            <th>Tempoh</th>
                             <th>Status</th>
                             <th>Tindakan</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($evaluationPeriods as $period)
+                        @forelse($periods as $period)
                         <tr>
                             <td>{{ $period->tahun }}</td>
-                            <td>{{ $period->tarikh_mula->format('d/m/Y') }}</td>
-                            <td>{{ $period->tarikh_tamat->format('d/m/Y') }}</td>
+                            <td>{{ $period->jenis === 'skt' ? 'SKT' : 'Penilaian Prestasi' }}</td>
+                            <td>
+                                @if($period->jenis === 'skt')
+                                    Awal: {{ $period->tarikh_mula_awal->format('d/m/Y') }} - {{ $period->tarikh_tamat_awal->format('d/m/Y') }}<br>
+                                    Pertengahan: {{ $period->tarikh_mula_pertengahan->format('d/m/Y') }} - {{ $period->tarikh_tamat_pertengahan->format('d/m/Y') }}<br>
+                                    Akhir: {{ $period->tarikh_mula_akhir->format('d/m/Y') }} - {{ $period->tarikh_tamat_akhir->format('d/m/Y') }}
+                                @else
+                                    {{ $period->tarikh_mula_penilaian->format('d/m/Y') }} - {{ $period->tarikh_tamat_penilaian->format('d/m/Y') }}
+                                @endif
+                            </td>
                             <td>
                                 @if($period->is_active)
-                                    <span class="badge bg-success">Aktif</span>
+                                    <span class="badge bg-success">Aktif ({{ $period->active_period }})</span>
                                 @else
                                     <span class="badge bg-secondary">Tidak Aktif</span>
                                 @endif
@@ -46,7 +92,6 @@
                                 <a href="{{ route('evaluation-periods.edit', $period) }}" class="btn btn-sm btn-warning">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                @can('delete', $period)
                                 <form action="{{ route('evaluation-periods.destroy', $period) }}" method="POST" style="display: inline-block;">
                                     @csrf
                                     @method('DELETE')
@@ -54,7 +99,6 @@
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
-                                @endcan
                             </td>
                         </tr>
                         @empty
@@ -66,9 +110,9 @@
                 </table>
             </div>
             
-            @if($evaluationPeriods->hasPages())
+            @if($periods->hasPages())
             <div class="d-flex justify-content-center mt-4">
-                {{ $evaluationPeriods->links() }}
+                {{ $periods->appends(['year' => $year, 'jenis' => $jenis])->links() }}
             </div>
             @endif
         </div>

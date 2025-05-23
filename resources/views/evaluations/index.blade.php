@@ -6,13 +6,29 @@
         <div class="col-md-6">
             <h2 class="fw-bold">Senarai Penilaian Prestasi</h2>
         </div>
-        @can('create', App\Models\Evaluation::class)
         <div class="col-md-6 text-end">
+            <div class="dropdown d-inline-block me-2">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                        id="yearDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Tahun: {{ $year }}
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="yearDropdown">
+                    @foreach($availableYears as $availableYear)
+                        <li>
+                            <a class="dropdown-item" href="{{ route('evaluations.index', ['year' => $availableYear]) }}">
+                                {{ $availableYear }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+            
+            @can('create', App\Models\Evaluation::class)
             <a href="{{ route('evaluations.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus me-1"></i> Tambah Penilaian
             </a>
+            @endcan
         </div>
-        @endcan
     </div>
 
     <div class="card shadow">
@@ -22,11 +38,10 @@
                     <thead class="table-light">
                         <tr>
                             <th>PYD</th>
+                            <th>Tahun</th>
                             <th>PPP</th>
                             <th>PPK</th>
-                            <th>Tempoh</th>
                             <th>Status</th>
-                            <th>Markah</th>
                             <th>Tindakan</th>
                         </tr>
                     </thead>
@@ -34,21 +49,18 @@
                         @forelse($evaluations as $evaluation)
                         <tr>
                             <td>{{ $evaluation->pyd->name }}</td>
+                            <td>{{ $evaluation->evaluationPeriod->tahun }}</td>
                             <td>{{ $evaluation->ppp->name }}</td>
                             <td>{{ $evaluation->ppk->name }}</td>
-                            <td>{{ $evaluation->evaluationPeriod->tahun }}</td>
                             <td>
-                                @if($evaluation->status == 'selesai')
+                                @if($evaluation->status === 'draf_pyd')
+                                    <span class="badge bg-secondary">Draf PYD</span>
+                                @elseif($evaluation->status === 'draf_ppp')
+                                    <span class="badge bg-warning">Draf PPP</span>
+                                @elseif($evaluation->status === 'draf_ppk')
+                                    <span class="badge bg-info">Draf PPK</span>
+                                @else
                                     <span class="badge bg-success">Selesai</span>
-                                @else
-                                    <span class="badge bg-warning text-dark">{{ ucfirst(str_replace('_', ' ', $evaluation->status)) }}</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($evaluation->status == 'selesai')
-                                    {{ $evaluation->calculateTotalScore()['purata'] }}%
-                                @else
-                                    -
                                 @endif
                             </td>
                             <td>
@@ -73,7 +85,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center">Tiada penilaian dijumpai.</td>
+                            <td colspan="6" class="text-center">Tiada penilaian dijumpai.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -82,7 +94,7 @@
             
             @if($evaluations->hasPages())
             <div class="d-flex justify-content-center mt-4">
-                {{ $evaluations->links() }}
+                {{ $evaluations->appends(['year' => $year])->links() }}
             </div>
             @endif
         </div>

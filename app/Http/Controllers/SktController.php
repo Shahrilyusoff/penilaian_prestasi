@@ -7,38 +7,71 @@ use App\Models\User;
 use App\Models\EvaluationPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class SktController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $year = $request->input('year', date('Y'));
+        
+        $query = Skt::with(['pyd', 'ppp', 'evaluationPeriod'])
+            ->whereHas('evaluationPeriod', function($q) use ($year) {
+                $q->where('tahun', $year);
+            });
+        
         $user = Auth::user();
-
+        
         if ($user->isPYD()) {
-            $skts = Skt::with(['pyd', 'ppp', 'evaluationPeriod'])
-                ->where('pyd_id', $user->id)
-                ->paginate(10);
+            $query->where('pyd_id', $user->id);
         } elseif ($user->isPPP()) {
-            $skts = Skt::with(['pyd', 'ppp', 'evaluationPeriod'])
-                ->where('ppp_id', $user->id)
-                ->paginate(10);
-        } else {
-            $skts = Skt::with(['pyd', 'ppp', 'evaluationPeriod'])
-                ->paginate(10);
+            $query->where('ppp_id', $user->id);
         }
-
-        return view('skt.index', compact('skts'));
+        
+        $skts = $query->paginate(10);
+        
+        $availableYears = EvaluationPeriod::select('tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+        
+        return view('skt.index', compact('skts', 'availableYears', 'year'));
     }
-
 
     public function create()
     {
-        $periods = EvaluationPeriod::whereDate('tarikh_mula', '<=', now())
-            ->whereDate('tarikh_tamat', '>=', now())
+        $today = Carbon::today();
+
+        // Active SKT periods
+        $activeSktPeriods = EvaluationPeriod::where('jenis', EvaluationPeriod::JENIS_SKT)
+            ->where(function ($query) use ($today) {
+                $query->where(function ($q) use ($today) {
+                    $q->whereDate('tarikh_mula_awal', '<=', $today)
+                    ->whereDate('tarikh_tamat_awal', '>=', $today);
+                })
+                ->orWhere(function ($q) use ($today) {
+                    $q->whereDate('tarikh_mula_pertengahan', '<=', $today)
+                    ->whereDate('tarikh_tamat_pertengahan', '>=', $today);
+                })
+                ->orWhere(function ($q) use ($today) {
+                    $q->whereDate('tarikh_mula_akhir', '<=', $today)
+                    ->whereDate('tarikh_tamat_akhir', '>=', $today);
+                });
+            })
             ->get();
+
+        // Active Penilaian periods
+        $activePenilaianPeriods = EvaluationPeriod::where('jenis', EvaluationPeriod::JENIS_PENILAIAN)
+            ->whereDate('tarikh_mula_penilaian', '<=', $today)
+            ->whereDate('tarikh_tamat_penilaian', '>=', $today)
+            ->get();
+
+        // Combine both
+        $periods = $activeSktPeriods->merge($activePenilaianPeriods);
+
         $pyds = User::where('peranan', 'pyd')->get();
         $ppps = User::where('peranan', 'ppp')->get();
-        
+
         return view('skt.create', compact('periods', 'pyds', 'ppps'));
     }
 

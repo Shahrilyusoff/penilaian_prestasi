@@ -99,9 +99,15 @@
                             @foreach($activePeriods as $period)
                                 <li class="list-group-item">
                                     <strong>{{ $period->tahun }}</strong><br>
-                                    {{ $period->tarikh_mula->format('d/m/Y') }} - {{ $period->tarikh_tamat->format('d/m/Y') }}
-                                    <span class="badge bg-{{ $period->status ? 'success' : 'secondary' }} float-end">
-                                        {{ $period->status ? 'Aktif' : 'Tidak Aktif' }}
+                                    @if($period->jenis === 'penilaian')
+                                        {{ $period->tarikh_mula_penilaian?->format('d/m/Y') }} - {{ $period->tarikh_tamat_penilaian?->format('d/m/Y') }}
+                                    @elseif($period->jenis === 'skt')
+                                        Awal: {{ $period->tarikh_mula_awal?->format('d/m/Y') }} - {{ $period->tarikh_tamat_awal?->format('d/m/Y') }}<br>
+                                        Pertengahan: {{ $period->tarikh_mula_pertengahan?->format('d/m/Y') }} - {{ $period->tarikh_tamat_pertengahan?->format('d/m/Y') }}<br>
+                                        Akhir: {{ $period->tarikh_mula_akhir?->format('d/m/Y') }} - {{ $period->tarikh_tamat_akhir?->format('d/m/Y') }}
+                                    @endif
+                                    <span class="badge bg-{{ $period->is_active ? 'success' : 'secondary' }} float-end">
+                                        {{ $period->is_active ? 'Active' : 'Inactive' }}
                                     </span>
                                 </li>
                             @endforeach

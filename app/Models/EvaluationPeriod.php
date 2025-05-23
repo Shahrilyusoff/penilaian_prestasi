@@ -12,34 +12,76 @@ class EvaluationPeriod extends Model
 
     protected $fillable = [
         'tahun',
-        'tarikh_mula',
-        'tarikh_tamat',
-        'boleh_ubah_selepas_tamat'
+        'jenis',
+        'tarikh_mula_awal',
+        'tarikh_tamat_awal',
+        'tarikh_mula_pertengahan',
+        'tarikh_tamat_pertengahan',
+        'tarikh_mula_akhir',
+        'tarikh_tamat_akhir',
+        'tarikh_mula_penilaian',
+        'tarikh_tamat_penilaian'
     ];
+
+    // app/Models/EvaluationPeriod.php
 
     protected $casts = [
-        'tarikh_mula' => 'datetime',
-        'tarikh_tamat' => 'datetime',
+        'tarikh_mula_awal' => 'date',
+        'tarikh_tamat_awal' => 'date',
+        'tarikh_mula_pertengahan' => 'date',
+        'tarikh_tamat_pertengahan' => 'date',
+        'tarikh_mula_akhir' => 'date',
+        'tarikh_tamat_akhir' => 'date',
+        'tarikh_mula_penilaian' => 'date',
+        'tarikh_tamat_penilaian' => 'date',
     ];
 
-    protected $appends = ['is_active'];
+    const JENIS_SKT = 'skt';
+    const JENIS_PENILAIAN = 'penilaian';
 
-    public function evaluations()
+    public function getActivePeriodAttribute()
     {
-        return $this->hasMany(Evaluation::class);
-    }
-
-    public function skts()
-    {
-        return $this->hasMany(Skt::class);
+        $today = Carbon::today();
+        
+        if ($this->jenis === self::JENIS_SKT) {
+            if ($today->between($this->tarikh_mula_awal, $this->tarikh_tamat_awal)) {
+                return 'awal';
+            } elseif ($today->between($this->tarikh_mula_pertengahan, $this->tarikh_tamat_pertengahan)) {
+                return 'pertengahan';
+            } elseif ($today->between($this->tarikh_mula_akhir, $this->tarikh_tamat_akhir)) {
+                return 'akhir';
+            }
+        } else {
+            if ($today->between($this->tarikh_mula_penilaian, $this->tarikh_tamat_penilaian)) {
+                return 'aktif';
+            }
+        }
+        
+        return null;
     }
 
     public function getIsActiveAttribute()
     {
-        $today = Carbon::today();
-        return $today->between($this->tarikh_mula, $this->tarikh_tamat);
+        return $this->active_period !== null;
     }
 
-    // Remove the status column from database queries
-    protected $hidden = ['status'];
+    public function scopeSkt($query)
+    {
+        return $query->where('jenis', self::JENIS_SKT);
+    }
+
+    public function scopePenilaian($query)
+    {
+        return $query->where('jenis', self::JENIS_PENILAIAN);
+    }
+
+    public function scopeCurrentYear($query)
+    {
+        return $query->where('tahun', date('Y'));
+    }
+
+    public function scopeYear($query, $year)
+    {
+        return $query->where('tahun', $year);
+    }
 }

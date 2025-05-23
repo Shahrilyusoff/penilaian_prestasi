@@ -112,23 +112,50 @@ class SktController extends Controller
 
     public function update(Request $request, Skt $skt)
     {
-        $request->validate([
-            'evaluation_period_id' => 'required|exists:evaluation_periods,id',
-            'pyd_id' => 'required|exists:users,id',
-            'ppp_id' => 'required|exists:users,id',
+        // Validate the input
+        $validated = $request->validate([
             'aktiviti_projek' => 'required|array|min:1',
+            'aktiviti_projek.*' => 'required|string',
             'petunjuk_prestasi' => 'required|array|min:1',
+            'petunjuk_prestasi.*' => 'required|string',
+            'tambahan_aktiviti' => 'nullable|array',
+            'tambahan_aktiviti.*' => 'nullable|string',
+            'tambahan_petunjuk' => 'nullable|array',
+            'tambahan_petunjuk.*' => 'nullable|string',
+            'guguran' => 'nullable|array',
+            'guguran.*' => 'nullable|string',
+            'laporan_akhir_pyd' => 'nullable|string',
         ]);
 
-        $skt->update([
-            'evaluation_period_id' => $request->evaluation_period_id,
-            'pyd_id' => $request->pyd_id,
-            'ppp_id' => $request->ppp_id,
-            'aktiviti_projek' => json_encode($request->aktiviti_projek),
-            'petunjuk_prestasi' => json_encode($request->petunjuk_prestasi),
-        ]);
+        // Prepare data for update
+        $skt->aktiviti_projek = json_encode($validated['aktiviti_projek']);
+        $skt->petunjuk_prestasi = json_encode($validated['petunjuk_prestasi']);
 
-        return redirect()->route('skt.index')->with('success', 'SKT berjaya dikemaskini.');
+        // Mid-year additional items
+        if ($skt->evaluationPeriod->active_period === 'pertengahan') {
+            $tambahanAktiviti = $validated['tambahan_aktiviti'] ?? [];
+            $tambahanPetunjuk = $validated['tambahan_petunjuk'] ?? [];
+            $tambahan = [];
+
+            foreach ($tambahanAktiviti as $i => $value) {
+                $tambahan[] = [
+                    'aktiviti' => $value ?? '',
+                    'petunjuk' => $tambahanPetunjuk[$i] ?? '',
+                ];
+            }
+
+            $skt->tambahan_pertengahan_tahun = json_encode($tambahan);
+            $skt->guguran_pertengahan_tahun = json_encode($validated['guguran'] ?? []);
+        }
+
+        // End-of-year report
+        if ($skt->evaluationPeriod->active_period === 'akhir') {
+            $skt->laporan_akhir_pyd = $validated['laporan_akhir_pyd'] ?? null;
+        }
+
+        $skt->save();
+
+        return redirect()->route('skt.show', $skt)->with('success', 'Maklumat SKT telah dikemaskini.');
     }
 
     public function destroy(Skt $skt)

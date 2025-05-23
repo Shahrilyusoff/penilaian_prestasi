@@ -20,12 +20,12 @@ return new class extends Migration
             $table->text('kegiatan_sumbangan')->nullable();
             $table->text('latihan_dihadiri')->nullable();
             $table->text('latihan_diperlukan')->nullable();
-            $table->date('tempoh_penilaian_ppp_mula')->nullable();
-            $table->date('tempoh_penilaian_ppp_tamat')->nullable();
+            $table->integer('tempoh_penilaian_ppp_mula')->nullable(); // Years
+            $table->integer('tempoh_penilaian_ppp_tamat')->nullable(); // Months
             $table->text('ulasan_keseluruhan_ppp')->nullable();
             $table->text('kemajuan_kerjaya_ppp')->nullable();
-            $table->date('tempoh_penilaian_ppk_mula')->nullable();
-            $table->date('tempoh_penilaian_ppk_tamat')->nullable();
+            $table->integer('tempoh_penilaian_ppk_mula')->nullable();
+            $table->integer('tempoh_penilaian_ppk_tamat')->nullable();
             $table->text('ulasan_keseluruhan_ppk')->nullable();
             $table->enum('status', ['draf_pyd', 'draf_ppp', 'draf_ppk', 'selesai'])->default('draf_pyd');
             $table->timestamps();

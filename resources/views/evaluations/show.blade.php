@@ -142,19 +142,19 @@
                                 <label class="form-label">Tempoh PYD bertugas di bawah pengawasan</label>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control @error('tempoh_penilaian_ppp_mula') is-invalid @enderror" 
-                                               name="tempoh_penilaian_ppp_mula" placeholder="Tahun" 
-                                               value="{{ old('tempoh_penilaian_ppp_mula', $evaluation->tempoh_penilaian_ppp_mula?->format('Y')) }}"
-                                               {{ $evaluation->status != 'draf_ppp' ? 'readonly' : '' }}>
+                                        <input type="text" class="form-control @error('tempoh_penilaian_ppp_mula') is-invalid @enderror"
+                                            name="tempoh_penilaian_ppp_mula" placeholder="Tahun"
+                                            value="{{ old('tempoh_penilaian_ppp_mula', $evaluation->tempoh_penilaian_ppp_mula) }}"
+                                            {{ $evaluation->status != 'draf_ppp' ? 'readonly' : '' }}>
                                         @error('tempoh_penilaian_ppp_mula')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="col-md-6">
-                                        <input type="text" class="form-control @error('tempoh_penilaian_ppp_tamat') is-invalid @enderror" 
-                                               name="tempoh_penilaian_ppp_tamat" placeholder="Bulan" 
-                                               value="{{ old('tempoh_penilaian_ppp_tamat', $evaluation->tempoh_penilaian_ppp_tamat?->format('m')) }}"
-                                               {{ $evaluation->status != 'draf_ppp' ? 'readonly' : '' }}>
+                                        <input type="text" class="form-control @error('tempoh_penilaian_ppp_tamat') is-invalid @enderror"
+                                            name="tempoh_penilaian_ppp_tamat" placeholder="Bulan"
+                                            value="{{ old('tempoh_penilaian_ppp_tamat', $evaluation->tempoh_penilaian_ppp_tamat) }}"
+                                            {{ $evaluation->status != 'draf_ppp' ? 'readonly' : '' }}>
                                         @error('tempoh_penilaian_ppp_tamat')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
@@ -346,18 +346,18 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <input type="text" class="form-control @error('tempoh_penilaian_ppk_mula') is-invalid @enderror" 
-                                               name="tempoh_penilaian_ppk_mula" placeholder="Tahun" 
-                                               value="{{ old('tempoh_penilaian_ppk_mula', $evaluation->tempoh_penilaian_ppk_mula?->format('Y')) }}"
-                                               {{ $evaluation->status != 'draf_ppk' ? 'readonly' : '' }}>
+                                            name="tempoh_penilaian_ppk_mula" placeholder="Tahun" 
+                                            value="{{ old('tempoh_penilaian_ppk_mula', $evaluation->tempoh_penilaian_ppk_mula) }}"
+                                            {{ $evaluation->status != 'draf_ppk' ? 'readonly' : '' }}>
                                         @error('tempoh_penilaian_ppk_mula')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control @error('tempoh_penilaian_ppk_tamat') is-invalid @enderror" 
-                                               name="tempoh_penilaian_ppk_tamat" placeholder="Bulan" 
-                                               value="{{ old('tempoh_penilaian_ppk_tamat', $evaluation->tempoh_penilaian_ppk_tamat?->format('m')) }}"
-                                               {{ $evaluation->status != 'draf_ppk' ? 'readonly' : '' }}>
+                                            name="tempoh_penilaian_ppk_tamat" placeholder="Bulan" 
+                                            value="{{ old('tempoh_penilaian_ppk_tamat', $evaluation->tempoh_penilaian_ppk_tamat) }}"
+                                            {{ $evaluation->status != 'draf_ppk' ? 'readonly' : '' }}>
                                         @error('tempoh_penilaian_ppk_tamat')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror

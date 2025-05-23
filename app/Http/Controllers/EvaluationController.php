@@ -154,8 +154,8 @@ class EvaluationController extends Controller
     {
         $request->validate([
             'markah_ppp.*' => 'required|integer|min:1|max:10',
-            'tempoh_penilaian_ppp_mula' => 'required|date',
-            'tempoh_penilaian_ppp_tamat' => 'required|date|after:tempoh_penilaian_ppp_mula',
+            'tempoh_penilaian_ppp_mula' => 'required|integer|min:0',
+            'tempoh_penilaian_ppp_tamat' => 'required|integer|min:0|max:11',
             'ulasan_keseluruhan_ppp' => 'required|string',
             'kemajuan_kerjaya_ppp' => 'required|string',
         ]);
@@ -181,8 +181,8 @@ class EvaluationController extends Controller
     {
         $request->validate([
             'markah_ppk.*' => 'required|integer|min:1|max:10',
-            'tempoh_penilaian_ppk_mula' => 'required|date',
-            'tempoh_penilaian_ppk_tamat' => 'required|date|after:tempoh_penilaian_ppk_mula',
+            'tempoh_penilaian_ppk_mula' => 'required|integer|min:0',
+            'tempoh_penilaian_ppk_tamat' => 'required|integer|min:0|max:11',
             'ulasan_keseluruhan_ppk' => 'required|string',
         ]);
 

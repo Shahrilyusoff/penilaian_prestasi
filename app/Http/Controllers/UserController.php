@@ -50,7 +50,10 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        return view('admin.users.show', compact('user'));
+        $ppps = User::where('peranan', 'ppp')->get();
+        $ppks = User::where('peranan', 'ppk')->get();
+
+        return view('admin.users.show', compact('user', 'ppps', 'ppks'));
     }
 
     public function edit(User $user)

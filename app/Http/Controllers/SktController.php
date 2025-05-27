@@ -40,58 +40,78 @@ class SktController extends Controller
 
     public function create()
     {
+        $user = auth()->user();
         $today = Carbon::today();
 
-        // Active SKT periods
-        $activeSktPeriods = EvaluationPeriod::where('jenis', EvaluationPeriod::JENIS_SKT)
-            ->where(function ($query) use ($today) {
-                $query->where(function ($q) use ($today) {
-                    $q->whereDate('tarikh_mula_awal', '<=', $today)
-                    ->whereDate('tarikh_tamat_awal', '>=', $today);
+        if ($user->peranan === 'admin') {
+            // Admin sees all periods (Code B)
+            $evaluationPeriods = EvaluationPeriod::where('jenis', 'skt')
+                ->orderBy('tahun', 'desc')
+                ->get();
+        } else {
+            // Regular user sees only active periods (Code A)
+            $evaluationPeriods = EvaluationPeriod::where('jenis', EvaluationPeriod::JENIS_SKT)
+                ->where(function ($query) use ($today) {
+                    $query->where(function ($q) use ($today) {
+                        $q->whereDate('tarikh_mula_awal', '<=', $today)
+                            ->whereDate('tarikh_tamat_awal', '>=', $today);
+                    })
+                    ->orWhere(function ($q) use ($today) {
+                        $q->whereDate('tarikh_mula_pertengahan', '<=', $today)
+                            ->whereDate('tarikh_tamat_pertengahan', '>=', $today);
+                    })
+                    ->orWhere(function ($q) use ($today) {
+                        $q->whereDate('tarikh_mula_akhir', '<=', $today)
+                            ->whereDate('tarikh_tamat_akhir', '>=', $today);
+                    });
                 })
-                ->orWhere(function ($q) use ($today) {
-                    $q->whereDate('tarikh_mula_pertengahan', '<=', $today)
-                    ->whereDate('tarikh_tamat_pertengahan', '>=', $today);
-                })
-                ->orWhere(function ($q) use ($today) {
-                    $q->whereDate('tarikh_mula_akhir', '<=', $today)
-                    ->whereDate('tarikh_tamat_akhir', '>=', $today);
-                });
-            })
+                ->get();
+        }
+
+        // Get the IDs of all evaluation periods to filter assigned PYDs
+        $evaluationPeriodIds = $evaluationPeriods->pluck('id')->toArray();
+
+        // Get PYD IDs already assigned in SKT for these periods
+        $assignedPydIds = Skt::whereIn('evaluation_period_id', $evaluationPeriodIds)
+            ->pluck('pyd_id')
+            ->toArray();
+
+        // Get PYDs excluding those already assigned
+        $pyds = User::where('peranan', 'pyd')
+            ->whereNotIn('id', $assignedPydIds)
             ->get();
 
-        // Active Penilaian periods
-        $activePenilaianPeriods = EvaluationPeriod::where('jenis', EvaluationPeriod::JENIS_PENILAIAN)
-            ->whereDate('tarikh_mula_penilaian', '<=', $today)
-            ->whereDate('tarikh_tamat_penilaian', '>=', $today)
-            ->get();
-
-        // Combine both
-        $periods = $activeSktPeriods->merge($activePenilaianPeriods);
-
-        $pyds = User::where('peranan', 'pyd')->get();
         $ppps = User::where('peranan', 'ppp')->get();
 
-        return view('skt.create', compact('periods', 'pyds', 'ppps'));
+        return view('skt.create', compact('evaluationPeriods', 'pyds', 'ppps'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'evaluation_period_id' => 'required|exists:evaluation_periods,id',
-            'pyd_id' => 'required|exists:users,id',
-            'ppp_id' => 'required|exists:users,id',
+            'pyd_ids' => 'required|array',
+            'pyd_ids.*' => 'exists:users,id',
+            'ppp_ids' => 'required|array',
+            'ppp_ids.*' => 'exists:users,id',
         ]);
-
-        Skt::create([
-            'evaluation_period_id' => $request->evaluation_period_id,
-            'pyd_id' => $request->pyd_id,
-            'ppp_id' => $request->ppp_id,
-            'status' => 'draf', // Set to draft since PYD needs to fill details
-        ]);
-
+        
+        // Check for duplicate PYD assignments
+        if (count($request->pyd_ids) !== count(array_unique($request->pyd_ids))) {
+            return back()->withErrors(['pyd_ids' => 'PYD tidak boleh diulang'])->withInput();
+        }
+        
+        foreach ($request->pyd_ids as $index => $pydId) {
+            Skt::create([
+                'evaluation_period_id' => $request->evaluation_period_id,
+                'pyd_id' => $pydId,
+                'ppp_id' => $request->ppp_ids[$index],
+                'status' => 'draf',
+            ]);
+        }
+        
         return redirect()->route('skt.index')
-            ->with('success', 'SKT berjaya dicipta. PYD perlu mengisi aktiviti dan petunjuk prestasi.');
+            ->with('success', 'SKT berjaya dicipta.');
     }
 
     public function show(Skt $skt)

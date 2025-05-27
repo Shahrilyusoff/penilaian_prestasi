@@ -52,6 +52,15 @@ class Evaluation extends Model
         return $this->hasMany(EvaluationScore::class);
     }
 
+        protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($evaluation) {
+            $evaluation->scores()->delete();
+        });
+    }
+
     public function skt()
     {
         return $this->hasOne(Skt::class, 'evaluation_period_id', 'evaluation_period_id')

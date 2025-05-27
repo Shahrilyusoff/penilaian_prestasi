@@ -21,7 +21,9 @@
                             <select class="form-select @error('evaluation_period_id') is-invalid @enderror" 
                                     id="evaluation_period_id" name="evaluation_period_id" required disabled>
                                 <option value="{{ $evaluation->evaluationPeriod->id }}" selected>
-                                    {{ $evaluation->evaluationPeriod->tahun }} ({{ $evaluation->evaluationPeriod->tarikh_mula->format('d/m/Y') }} - {{ $evaluation->evaluationPeriod->tarikh_tamat->format('d/m/Y') }})
+                                    {{ $evaluation->evaluationPeriod->tahun }} (
+                                    {{ optional($evaluation->evaluationPeriod->tarikh_mula_penilaian)->format('d/m/Y') ?? 'N/A' }} - 
+                                    {{ optional($evaluation->evaluationPeriod->tarikh_tamat_penilaian)->format('d/m/Y') ?? 'N/A' }})
                                 </option>
                             </select>
                             <input type="hidden" name="evaluation_period_id" value="{{ $evaluation->evaluation_period_id }}">

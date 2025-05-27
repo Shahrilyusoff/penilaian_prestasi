@@ -43,11 +43,23 @@ class EvaluationController extends Controller
 
     public function create()
     {
-        $evaluationPeriods = EvaluationPeriod::whereDate('tarikh_mula_penilaian', '<=', now())
-            ->whereDate('tarikh_tamat_penilaian', '>=', now())
+        $evaluationPeriods = EvaluationPeriod::where('jenis', 'penilaian')
+            ->orderBy('tahun', 'desc')
             ->get();
 
-        $pyds = User::where('peranan', 'pyd')->get();
+        // Get all evaluation period IDs
+        $periodIds = $evaluationPeriods->pluck('id')->toArray();
+
+        // Get PYD IDs already assigned in any evaluation for these periods
+        $assignedPydIds = Evaluation::whereIn('evaluation_period_id', $periodIds)
+            ->pluck('pyd_id')
+            ->toArray();
+
+        // Get PYDs excluding those already assigned
+        $pyds = User::where('peranan', 'pyd')
+            ->whereNotIn('id', $assignedPydIds)
+            ->get();
+
         $ppps = User::where('peranan', 'ppp')->get();
         $ppks = User::where('peranan', 'ppk')->get();
 
@@ -58,34 +70,47 @@ class EvaluationController extends Controller
     {
         $request->validate([
             'evaluation_period_id' => 'required|exists:evaluation_periods,id',
-            'pyd_id' => 'required|exists:users,id',
-            'ppp_id' => 'required|exists:users,id',
-            'ppk_id' => 'required|exists:users,id',
+            'pyd_ids' => 'required|array',
+            'pyd_ids.*' => 'exists:users,id',
+            'ppp_ids' => 'required|array',
+            'ppp_ids.*' => 'exists:users,id',
+            'ppk_ids' => 'required|array',
+            'ppk_ids.*' => 'exists:users,id',
         ]);
-
-        $evaluation = Evaluation::create([
-            'evaluation_period_id' => $request->evaluation_period_id,
-            'pyd_id' => $request->pyd_id,
-            'ppp_id' => $request->ppp_id,
-            'ppk_id' => $request->ppk_id,
-            'status' => 'draf_pyd',
-        ]);
-
-        // Create empty scores for all criteria
-        $pydGroup = User::find($request->pyd_id)->pydGroup->nama_kumpulan;
-        $criteria = EvaluationCriteria::where('kumpulan_pyd', $pydGroup)
-            ->orWhereNull('kumpulan_pyd')
-            ->get();
-
-        foreach ($criteria as $criterion) {
-            EvaluationScore::create([
-                'evaluation_id' => $evaluation->id,
-                'criteria_id' => $criterion->id,
-            ]);
+        
+        // Check for duplicate PYD assignments
+        if (count($request->pyd_ids) !== count(array_unique($request->pyd_ids))) {
+            return back()->withErrors(['pyd_ids' => 'PYD tidak boleh diulang'])->withInput();
         }
-
+        
+        foreach ($request->pyd_ids as $index => $pydId) {
+            $evaluation = Evaluation::create([
+                'evaluation_period_id' => $request->evaluation_period_id,
+                'pyd_id' => $pydId,
+                'ppp_id' => $request->ppp_ids[$index],
+                'ppk_id' => $request->ppk_ids[$index],
+                'status' => 'draf_pyd',
+            ]);
+            
+            // Find PYD group for criteria selection
+            $pydGroup = User::find($pydId)->pydGroup->nama_kumpulan ?? null;
+            
+            // Get criteria matching PYD group or no group
+            $criteria = EvaluationCriteria::where('kumpulan_pyd', $pydGroup)
+                ->orWhereNull('kumpulan_pyd')
+                ->get();
+            
+            // Create empty scores for each criterion
+            foreach ($criteria as $criterion) {
+                EvaluationScore::create([
+                    'evaluation_id' => $evaluation->id,
+                    'criteria_id' => $criterion->id,
+                ]);
+            }
+        }
+        
         return redirect()->route('evaluations.index')
-            ->with('success', 'Penilaian berjaya dicipta.');
+            ->with('success', 'Penilaian prestasi berjaya dicipta.');
     }
 
     public function show(Evaluation $evaluation)
@@ -96,7 +121,7 @@ class EvaluationController extends Controller
 
     public function edit(Evaluation $evaluation)
     {
-        $periods = EvaluationPeriod::where('status', true)->get();
+        $periods = EvaluationPeriod::all();
         $pyds = User::where('peranan', 'pyd')->get();
         $ppps = User::where('peranan', 'ppp')->get();
         $ppks = User::where('peranan', 'ppk')->get();

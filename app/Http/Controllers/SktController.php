@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\EvaluationPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class SktController extends Controller
 {
@@ -40,195 +39,202 @@ class SktController extends Controller
 
     public function create()
     {
-        $user = auth()->user();
-        $today = Carbon::today();
+        $this->authorize('create', Skt::class);
 
-        if ($user->peranan === 'admin') {
-            // Admin sees all periods (Code B)
-            $evaluationPeriods = EvaluationPeriod::where('jenis', 'skt')
-                ->orderBy('tahun', 'desc')
-                ->get();
-        } else {
-            // Regular user sees only active periods (Code A)
-            $evaluationPeriods = EvaluationPeriod::where('jenis', EvaluationPeriod::JENIS_SKT)
-                ->where(function ($query) use ($today) {
-                    $query->where(function ($q) use ($today) {
-                        $q->whereDate('tarikh_mula_awal', '<=', $today)
-                            ->whereDate('tarikh_tamat_awal', '>=', $today);
-                    })
-                    ->orWhere(function ($q) use ($today) {
-                        $q->whereDate('tarikh_mula_pertengahan', '<=', $today)
-                            ->whereDate('tarikh_tamat_pertengahan', '>=', $today);
-                    })
-                    ->orWhere(function ($q) use ($today) {
-                        $q->whereDate('tarikh_mula_akhir', '<=', $today)
-                            ->whereDate('tarikh_tamat_akhir', '>=', $today);
-                    });
-                })
-                ->get();
-        }
+        $currentYear = date('Y');
 
-        // Get the IDs of all evaluation periods to filter assigned PYDs
+        // Get the SKT evaluation periods for current year
+        $evaluationPeriods = EvaluationPeriod::skt()->currentYear()->get();
+
+        // If you want to exclude PYDs that already have SKT in *any* current year SKT period,
+        // collect all evaluation_period_ids from $evaluationPeriods first:
         $evaluationPeriodIds = $evaluationPeriods->pluck('id')->toArray();
 
-        // Get PYD IDs already assigned in SKT for these periods
+        // Get PYD IDs already assigned SKT for current year's evaluation periods
         $assignedPydIds = Skt::whereIn('evaluation_period_id', $evaluationPeriodIds)
-            ->pluck('pyd_id')
-            ->toArray();
+                            ->pluck('pyd_id')
+                            ->toArray();
 
-        // Get PYDs excluding those already assigned
+        // Exclude assigned PYDs from selectable list
         $pyds = User::where('peranan', 'pyd')
-            ->whereNotIn('id', $assignedPydIds)
-            ->get();
+                    ->whereNotIn('id', $assignedPydIds)
+                    ->get();
 
         $ppps = User::where('peranan', 'ppp')->get();
 
-        return view('skt.create', compact('evaluationPeriods', 'pyds', 'ppps'));
+        return view('skt.create', compact('pyds', 'ppps', 'evaluationPeriods', 'currentYear'));
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create', Skt::class);
+
         $request->validate([
             'evaluation_period_id' => 'required|exists:evaluation_periods,id',
-            'pyd_ids' => 'required|array',
-            'pyd_ids.*' => 'exists:users,id',
-            'ppp_ids' => 'required|array',
-            'ppp_ids.*' => 'exists:users,id',
+            'pyd_ids' => 'required|array|min:1',
+            'pyd_ids.*' => 'required|exists:users,id',
+            'ppp_ids' => 'required|array|min:1',
+            'ppp_ids.*' => 'required|exists:users,id',
         ]);
-        
-        // Check for duplicate PYD assignments
-        if (count($request->pyd_ids) !== count(array_unique($request->pyd_ids))) {
-            return back()->withErrors(['pyd_ids' => 'PYD tidak boleh diulang'])->withInput();
-        }
-        
+
         foreach ($request->pyd_ids as $index => $pydId) {
             Skt::create([
                 'evaluation_period_id' => $request->evaluation_period_id,
                 'pyd_id' => $pydId,
                 'ppp_id' => $request->ppp_ids[$index],
-                'status' => 'draf',
+                'status' => Skt::STATUS_DRAFT,
             ]);
         }
-        
+
         return redirect()->route('skt.index')
             ->with('success', 'SKT berjaya dicipta.');
     }
 
     public function show(Skt $skt)
     {
+        $this->authorize('view', $skt);
+        
         return view('skt.show', compact('skt'));
     }
 
     public function edit(Skt $skt)
     {
-        $periods = EvaluationPeriod::whereDate('tarikh_mula_penilaian', '<=', now())
-            ->whereDate('tarikh_tamat_penilaian', '>=', now())
-            ->get();
-        $pyds = User::where('peranan', 'pyd')->get();
-        $ppps = User::where('peranan', 'ppp')->get();
+        $this->authorize('update', $skt);
         
-        return view('skt.edit', compact('skt', 'periods', 'pyds', 'ppps'));
+        if ($skt->isAwalTahunActive()) {
+            return view('skt.edit-awal', compact('skt'));
+        } elseif ($skt->isPertengahanTahunActive()) {
+            return view('skt.edit-pertengahan', compact('skt'));
+        } elseif ($skt->isAkhirTahunActive()) {
+            return view('skt.edit-akhir', compact('skt'));
+        }
+        
+        return redirect()->route('skt.show', $skt)
+            ->with('error', 'Tempoh SKT tidak aktif.');
     }
 
     public function update(Request $request, Skt $skt)
     {
-        // Validate the input
-        $validated = $request->validate([
-            'aktiviti_projek' => 'required|array|min:1',
-            'aktiviti_projek.*' => 'required|string',
-            'petunjuk_prestasi' => 'required|array|min:1',
-            'petunjuk_prestasi.*' => 'required|string',
-            'tambahan_aktiviti' => 'nullable|array',
-            'tambahan_aktiviti.*' => 'nullable|string',
-            'tambahan_petunjuk' => 'nullable|array',
-            'tambahan_petunjuk.*' => 'nullable|string',
-            'guguran' => 'nullable|array',
-            'guguran.*' => 'nullable|string',
-            'laporan_akhir_pyd' => 'nullable|string',
-        ]);
-
-        // Prepare data for update
-        $skt->aktiviti_projek = json_encode($validated['aktiviti_projek']);
-        $skt->petunjuk_prestasi = json_encode($validated['petunjuk_prestasi']);
-
-        // Mid-year additional items
-        if ($skt->evaluationPeriod->active_period === 'pertengahan') {
-            $tambahanAktiviti = $validated['tambahan_aktiviti'] ?? [];
-            $tambahanPetunjuk = $validated['tambahan_petunjuk'] ?? [];
-            $tambahan = [];
-
-            foreach ($tambahanAktiviti as $i => $value) {
-                $tambahan[] = [
-                    'aktiviti' => $value ?? '',
-                    'petunjuk' => $tambahanPetunjuk[$i] ?? '',
-                ];
-            }
-
-            $skt->tambahan_pertengahan_tahun = json_encode($tambahan);
-            $skt->guguran_pertengahan_tahun = json_encode($validated['guguran'] ?? []);
+        $this->authorize('update', $skt);
+        
+        if ($skt->isAwalTahunActive()) {
+            return $this->updateAwalTahun($request, $skt);
+        } elseif ($skt->isPertengahanTahunActive()) {
+            return $this->updatePertengahanTahun($request, $skt);
+        } elseif ($skt->isAkhirTahunActive()) {
+            return $this->updateAkhirTahun($request, $skt);
         }
-
-        // End-of-year report
-        if ($skt->evaluationPeriod->active_period === 'akhir') {
-            $skt->laporan_akhir_pyd = $validated['laporan_akhir_pyd'] ?? null;
-        }
-
-        $skt->save();
-
-        return redirect()->route('skt.show', $skt)->with('success', 'Maklumat SKT telah dikemaskini.');
+        
+        return redirect()->route('skt.show', $skt)
+            ->with('error', 'Tempoh SKT tidak aktif.');
     }
 
-    public function destroy(Skt $skt)
-    {
-        $skt->delete();
-        return redirect()->route('skt.index')
-            ->with('success', 'SKT berjaya dipadam.');
-    }
-
-    public function submit(Skt $skt)
-    {
-        $skt->update(['status' => 'diserahkan']);
-        return redirect()->route('skt.index')
-            ->with('success', 'SKT berjaya diserahkan.');
-    }
-
-    public function approve(Skt $skt)
-    {
-        $skt->update(['status' => 'disahkan']);
-        return redirect()->route('skt.index')
-            ->with('success', 'SKT berjaya disahkan.');
-    }
-
-    public function midYearReview(Request $request, Skt $skt)
+    protected function updateAwalTahun(Request $request, Skt $skt)
     {
         $request->validate([
-            'tambahan_pertengahan_tahun' => 'nullable|string',
-            'guguran_pertengahan_tahun' => 'nullable|string',
+            'aktiviti_projek' => 'required|array',
+            'aktiviti_projek.*' => 'required|string',
+            'petunjuk_prestasi' => 'required|array',
+            'petunjuk_prestasi.*' => 'required|string',
         ]);
-
+        
+        $aktivitiProjek = array_values($request->aktiviti_projek);
+        $petunjukPrestasi = array_values($request->petunjuk_prestasi);
+        
+        $combined = [];
+        for ($i = 0; $i < count($aktivitiProjek); $i++) {
+            $combined[] = [
+                'aktiviti' => $aktivitiProjek[$i],
+                'petunjuk' => $petunjukPrestasi[$i] ?? '',
+            ];
+        }
+        
         $skt->update([
-            'tambahan_pertengahan_tahun' => $request->tambahan_pertengahan_tahun,
-            'guguran_pertengahan_tahun' => $request->guguran_pertengahan_tahun,
+            'aktiviti_projek' => json_encode($combined),
+            'status' => Skt::STATUS_SUBMITTED,
         ]);
-
+        
         return redirect()->route('skt.show', $skt)
-            ->with('success', 'Kajian semula pertengahan tahun berjaya dikemaskini.');
+            ->with('success', 'SKT Awal Tahun berjaya diserahkan.');
     }
 
-    public function finalReview(Request $request, Skt $skt)
+    protected function updatePertengahanTahun(Request $request, Skt $skt)
+    {
+        $request->validate([
+            'aktiviti_projek' => 'required|array',
+            'aktiviti_projek.*' => 'required|string',
+            'petunjuk_prestasi' => 'required|array',
+            'petunjuk_prestasi.*' => 'required|string',
+        ]);
+        
+        $aktivitiProjek = array_values($request->aktiviti_projek);
+        $petunjukPrestasi = array_values($request->petunjuk_prestasi);
+        
+        $combined = [];
+        for ($i = 0; $i < count($aktivitiProjek); $i++) {
+            $combined[] = [
+                'aktiviti' => $aktivitiProjek[$i],
+                'petunjuk' => $petunjukPrestasi[$i] ?? '',
+            ];
+        }
+        
+        $skt->update([
+            'aktiviti_projek' => json_encode($combined),
+            'status' => Skt::STATUS_SUBMITTED,
+        ]);
+        
+        return redirect()->route('skt.show', $skt)
+            ->with('success', 'SKT Pertengahan Tahun berjaya diserahkan.');
+    }
+
+    protected function updateAkhirTahun(Request $request, Skt $skt)
     {
         $user = Auth::user();
         $request->validate([
             'laporan_akhir' => 'required|string',
         ]);
-
+        
         if ($user->isPYD()) {
-            $skt->update(['laporan_akhir_pyd' => $request->laporan_akhir]);
+            $skt->update([
+                'laporan_akhir_pyd' => $request->laporan_akhir,
+            ]);
+            
+            $message = 'Laporan akhir PYD berjaya dikemaskini.';
         } elseif ($user->isPPP()) {
-            $skt->update(['ulasan_akhir_ppp' => $request->laporan_akhir]);
+            $skt->update([
+                'ulasan_akhir_ppp' => $request->laporan_akhir,
+            ]);
+            
+            $message = 'Ulasan akhir PPP berjaya dikemaskini.';
         }
-
+        
+        // Check if both have submitted
+        if ($skt->laporan_akhir_pyd && $skt->ulasan_akhir_ppp) {
+            $skt->update(['status' => Skt::STATUS_COMPLETED]);
+            $message = 'SKT Akhir Tahun telah selesai.';
+        }
+        
         return redirect()->route('skt.show', $skt)
-            ->with('success', 'Laporan akhir berjaya dikemaskini.');
+            ->with('success', $message);
+    }
+
+    public function destroy(Skt $skt)
+    {
+        $this->authorize('delete', $skt);
+        
+        $skt->delete();
+        
+        return redirect()->route('skt.index')
+            ->with('success', 'SKT berjaya dipadam.');
+    }
+
+    public function approve(Skt $skt)
+    {
+        $this->authorize('approve', $skt);
+        
+        $skt->update(['status' => Skt::STATUS_APPROVED]);
+        
+        return redirect()->route('skt.show', $skt)
+            ->with('success', 'SKT berjaya disahkan.');
     }
 }

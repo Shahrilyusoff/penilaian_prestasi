@@ -1,3 +1,4 @@
+<!-- resources/views/skt/show.blade.php -->
 @extends('layouts.app')
 
 @section('content')
@@ -13,169 +14,149 @@
         </div>
     </div>
 
-    <div class="card shadow">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Maklumat Asas</h6>
+        </div>
         <div class="card-body">
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <h5>Maklumat Asas</h5>
-                    <table class="table table-bordered">
-                        <tr>
-                            <th width="30%">PYD</th>
-                            <td>{{ $skt->pyd->name }}</td>
-                        </tr>
-                        <tr>
-                            <th>PPP</th>
-                            <td>{{ $skt->ppp->name }}</td>
-                        </tr>
-                        <tr>
-                            <th>Tahun</th>
-                            <td>{{ $skt->evaluationPeriod->tahun }}</td>
-                        </tr>
-                        <tr>
-                            <th>Status</th>
-                            <td>
-                                @if($skt->status === 'draf')
-                                    <span class="badge bg-secondary">Draf</span>
-                                @elseif($skt->status === 'diserahkan')
-                                    <span class="badge bg-warning">Diserahkan</span>
-                                @else
-                                    <span class="badge bg-success">Disahkan</span>
-                                @endif
-                            </td>
-                        </tr>
-                    </table>
+            <div class="row">
+                <div class="col-md-4">
+                    <p><strong>PYD:</strong> {{ $skt->pyd->name }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>PPP:</strong> {{ $skt->ppp->name }}</p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Tahun:</strong> {{ $skt->evaluationPeriod->tahun }}</p>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <p><strong>Fasa Semasa:</strong> 
+                        @if($skt->evaluationPeriod->active_period === 'awal')
+                            Awal Tahun
+                        @elseif($skt->evaluationPeriod->active_period === 'pertengahan')
+                            Pertengahan Tahun
+                        @elseif($skt->evaluationPeriod->active_period === 'akhir')
+                            Akhir Tahun
+                        @else
+                            -
+                        @endif
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Status:</strong> 
+                        @if($skt->status === 'draf')
+                            <span class="badge bg-secondary">Draf</span>
+                        @elseif($skt->status === 'diserahkan')
+                            <span class="badge bg-warning">Diserahkan</span>
+                        @elseif($skt->status === 'disahkan')
+                            <span class="badge bg-success">Disahkan</span>
+                        @else
+                            <span class="badge bg-primary">Selesai</span>
+                        @endif
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <h5>Bahagian I - Penetapan Sasaran Kerja Tahunan</h5>
-                    @if($skt->aktiviti_projek)
+    @if($skt->isAwalTahunActive() || $skt->isPertengahanTahunActive())
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                @if($skt->isAwalTahunActive())
+                    BAHAGIAN I - Penetapan Sasaran Kerja Tahunan
+                @else
+                    BAHAGIAN II - Kajian Semula Sasaran Kerja Tahunan Pertengahan Tahun
+                @endif
+            </h6>
+        </div>
+        <div class="card-body">
+            @if($skt->aktiviti_projek)
+                <div class="table-responsive">
                     <table class="table table-bordered">
-                        <thead class="table-light">
+                        <thead>
                             <tr>
-                                <th width="50%">Aktiviti/Projek</th>
-                                <th>Petunjuk Prestasi</th>
+                                <th width="50%">Ringkasan Aktiviti/Projek</th>
+                                <th width="50%">Petunjuk Prestasi</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @php
-                                $aktiviti = json_decode($skt->aktiviti_projek, true);
-                                $petunjuk = json_decode($skt->petunjuk_prestasi, true);
-                            @endphp
-                            
-                            @for($i = 0; $i < count($aktiviti); $i++)
-                                <tr>
-                                    <td>{{ $aktiviti[$i] }}</td>
-                                    <td>{{ $petunjuk[$i] }}</td>
-                                </tr>
-                            @endfor
+                            @foreach(json_decode($skt->aktiviti_projek, true) as $item)
+                            <tr>
+                                <td>{{ $item['aktiviti'] }}</td>
+                                <td>{{ $item['petunjuk'] }}</td>
+                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
-                    @else
-                    <div class="alert alert-info">Tiada maklumat SKT awal tahun.</div>
+                </div>
+            @else
+                <p class="text-muted">Tiada maklumat SKT.</p>
+            @endif
+            
+            @can('update', $skt)
+                @if($skt->status === 'draf' || ($skt->status === 'diserahkan' && auth()->user()->isPPP()))
+                <div class="mt-4">
+                    <a href="{{ route('skt.edit', $skt) }}" class="btn btn-primary">
+                        <i class="fas fa-edit me-1"></i> 
+                        @if($skt->isAwalTahunActive())
+                            Isi/Maklumat SKT Awal Tahun
+                        @else
+                            Kajian Semula SKT Pertengahan Tahun
+                        @endif
+                    </a>
+                    
+                    @if($skt->status === 'diserahkan' && auth()->user()->isPPP())
+                    <form action="{{ route('skt.approve', $skt) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-1"></i> Sahkan
+                        </button>
+                    </form>
                     @endif
                 </div>
-            </div>
-
-            @if($skt->tambahan_pertengahan_tahun || $skt->guguran_pertengahan_tahun)
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <h5>Bahagian II - Kajian Semula Pertengahan Tahun</h5>
-                    
-                    @if($skt->tambahan_pertengahan_tahun)
-                    <div class="mb-3">
-                        <h6>Aktiviti/Projek Yang Ditambah</h6>
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th width="50%">Aktiviti/Projek</th>
-                                    <th>Petunjuk Prestasi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @php
-                                    $tambahan = json_decode($skt->tambahan_pertengahan_tahun, true);
-                                @endphp
-                                
-                                @foreach($tambahan as $item)
-                                    <tr>
-                                        <td>{{ $item['aktiviti'] }}</td>
-                                        <td>{{ $item['petunjuk'] }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                    @endif
-                    
-                    @if($skt->guguran_pertengahan_tahun)
-                    <div class="mb-3">
-                        <h6>Aktiviti/Projek Yang Digugurkan</h6>
-                        <ul>
-                            @php
-                                $guguran = json_decode($skt->guguran_pertengahan_tahun, true);
-                            @endphp
-                            
-                            @foreach($guguran as $item)
-                                <li>{{ $item }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    @endif
-                </div>
-            </div>
-            @endif
-
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <h5>Bahagian III - Laporan dan Ulasan Akhir Tahun</h5>
-                    
-                    @if($skt->laporan_akhir_pyd)
-                    <div class="mb-3">
-                        <h6>Laporan/Ulasan Oleh PYD</h6>
-                        <div class="p-3 bg-light rounded">
-                            {!! nl2br(e($skt->laporan_akhir_pyd)) !!}
-                        </div>
-                    </div>
-                    @endif
-                    
-                    @if($skt->ulasan_akhir_ppp)
-                    <div class="mb-3">
-                        <h6>Laporan/Ulasan Oleh PPP</h6>
-                        <div class="p-3 bg-light rounded">
-                            {!! nl2br(e($skt->ulasan_akhir_ppp)) !!}
-                        </div>
-                    </div>
-                    @endif
-                </div>
-            </div>
-
-            @if(auth()->user()->isPYD() && $skt->status === 'draf')
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <a href="{{ route('skt.edit', $skt) }}" class="btn btn-warning me-md-2">
-                    <i class="fas fa-edit me-1"></i> Kemaskini
-                </a>
-                <form action="{{ route('skt.submit', $skt) }}" method="POST">
-                    @csrf
-                    <button type="submit" class="btn btn-primary" onclick="return confirm('Adakah anda pasti untuk serahkan SKT ini?')">
-                        <i class="fas fa-paper-plane me-1"></i> Serahkan
-                    </button>
-                </form>
-            </div>
-            @endif
-
-            @if(auth()->user()->isPPP() && $skt->status === 'diserahkan')
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <form action="{{ route('skt.approve', $skt) }}" method="POST">
-                    @csrf
-                    <button type="submit" class="btn btn-success" onclick="return confirm('Adakah anda pasti untuk sahkan SKT ini?')">
-                        <i class="fas fa-check me-1"></i> Sahkan
-                    </button>
-                </form>
-            </div>
-            @endif
+                @endif
+            @endcan
         </div>
     </div>
+    @endif
+
+    @if($skt->isAkhirTahunActive())
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                BAHAGIAN III - Laporan dan Ulasan Keseluruhan Pencapaian SKT
+            </h6>
+        </div>
+        <div class="card-body">
+            <h5>1. Laporan/Ulasan Oleh PYD</h5>
+            <div class="p-3 mb-4 bg-light rounded">
+                {!! $skt->laporan_akhir_pyd ? nl2br(e($skt->laporan_akhir_pyd)) : '<span class="text-muted">Belum diisi</span>' !!}
+            </div>
+            
+            <h5>2. Laporan/Ulasan Oleh PPP</h5>
+            <div class="p-3 mb-4 bg-light rounded">
+                {!! $skt->ulasan_akhir_ppp ? nl2br(e($skt->ulasan_akhir_ppp)) : '<span class="text-muted">Belum diisi</span>' !!}
+            </div>
+            
+            @can('update', $skt)
+                @if(!$skt->laporan_akhir_pyd || !$skt->ulasan_akhir_ppp)
+                <div class="mt-4">
+                    <a href="{{ route('skt.edit', $skt) }}" class="btn btn-primary">
+                        <i class="fas fa-edit me-1"></i> 
+                        @if(auth()->user()->isPYD() && !$skt->laporan_akhir_pyd)
+                            Isi Laporan Akhir
+                        @elseif(auth()->user()->isPPP() && !$skt->ulasan_akhir_ppp)
+                            Isi Ulasan Akhir
+                        @endif
+                    </a>
+                </div>
+                @endif
+            @endcan
+        </div>
+    </div>
+    @endif
 </div>
 @endsection

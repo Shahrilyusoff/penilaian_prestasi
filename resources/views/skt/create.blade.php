@@ -12,16 +12,16 @@
         <div class="card-body">
             <form method="POST" action="{{ route('skt.store') }}" id="skt-form">
                 @csrf
-                
+
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label for="evaluation_period_id" class="form-label">Tempoh Penilaian</label>
-                        <select class="form-select @error('evaluation_period_id') is-invalid @enderror" 
+                        <select class="form-select @error('evaluation_period_id') is-invalid @enderror"
                                 id="evaluation_period_id" name="evaluation_period_id" required>
                             <option value="">-- Pilih Tempoh --</option>
                             @foreach($evaluationPeriods as $period)
                                 @if($period->jenis === 'skt')
-                                    <option value="{{ $period->id }}" 
+                                    <option value="{{ $period->id }}"
                                         {{ old('evaluation_period_id') == $period->id ? 'selected' : '' }}>
                                         {{ $period->tahun }} (SKT)
                                     </option>
@@ -33,11 +33,11 @@
                         @enderror
                     </div>
                 </div>
-                
+
                 <div id="assignments-container">
                     <!-- Dynamic assignment fields will be added here -->
                 </div>
-                
+
                 <div class="row mb-3">
                     <div class="col-md-12">
                         <button type="button" id="add-assignment" class="btn btn-primary">
@@ -45,7 +45,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <button type="submit" class="btn btn-primary">Simpan</button>
                     <a href="{{ route('skt.index') }}" class="btn btn-secondary">Batal</a>
@@ -92,80 +92,110 @@
     </div>
 </div>
 
+<!-- Pass old values from Laravel to JS -->
+<script>
+    const oldSelectedPYDs = @json(old('pyd_ids', []));
+    const oldSelectedPPPs = @json(old('ppp_ids', []));
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('assignments-container');
     const addButton = document.getElementById('add-assignment');
     const template = document.getElementById('assignment-template');
     const usedPYDs = new Set();
-    
-    // Add first assignment by default
-    addAssignment();
-    
+
+    // Initialize with old data if exists
+    if (Array.isArray(oldSelectedPYDs)) {
+        oldSelectedPYDs.forEach(id => usedPYDs.add(id));
+    }
+
+    // Rebuild old assignments or one default
+    if (Array.isArray(oldSelectedPYDs) && oldSelectedPYDs.length > 0) {
+        oldSelectedPYDs.forEach((pydId, index) => {
+            const newAssignment = template.cloneNode(true);
+            newAssignment.style.display = 'block';
+            newAssignment.classList.remove('d-none');
+            newAssignment.removeAttribute('id');
+
+            const pydSelect = newAssignment.querySelector('.pyd-select');
+            const pppSelect = newAssignment.querySelector('.ppp-select');
+
+            if (pydSelect) {
+                pydSelect.value = pydId;
+                pydSelect.dataset.previousValue = pydId;
+            }
+
+            if (pppSelect && oldSelectedPPPs && oldSelectedPPPs[index]) {
+                pppSelect.value = oldSelectedPPPs[index];
+            }
+
+            container.appendChild(newAssignment);
+        });
+
+        updatePydOptions();
+    } else {
+        addAssignment(); // Default one
+    }
+
     // Add new assignment
     addButton.addEventListener('click', addAssignment);
-    
+
     // Remove assignment
     container.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-assignment') || 
+        if (e.target.classList.contains('remove-assignment') ||
             e.target.closest('.remove-assignment')) {
             const assignment = e.target.closest('.assignment-group');
             const pydSelect = assignment.querySelector('.pyd-select');
-            
-            // Remove PYD from used set if it was selected
-            if (pydSelect.value) {
+
+            if (pydSelect && pydSelect.value) {
                 usedPYDs.delete(pydSelect.value);
                 updatePydOptions();
             }
-            
+
             assignment.remove();
-            
-            // Ensure at least one assignment remains
+
             if (container.querySelectorAll('.assignment-group').length === 0) {
                 addAssignment();
             }
         }
     });
-    
-    // Handle PYD selection change
+
+    // Handle PYD selection
     container.addEventListener('change', function(e) {
         if (e.target.classList.contains('pyd-select')) {
             const select = e.target;
-            const previouslySelected = select.dataset.previousValue;
-            
-            // Remove previous selection from used set
-            if (previouslySelected) {
-                usedPYDs.delete(previouslySelected);
+            const prev = select.dataset.previousValue;
+
+            if (prev) {
+                usedPYDs.delete(prev);
             }
-            
-            // Add new selection to used set
+
             if (select.value) {
                 usedPYDs.add(select.value);
             }
-            
-            // Update previous value
+
             select.dataset.previousValue = select.value;
-            
-            // Update all PYD selects
             updatePydOptions();
         }
     });
-    
+
     function addAssignment() {
         const newAssignment = template.cloneNode(true);
         newAssignment.style.display = 'block';
         newAssignment.classList.remove('d-none');
         newAssignment.removeAttribute('id');
         container.appendChild(newAssignment);
+        updatePydOptions();
     }
-    
+
     function updatePydOptions() {
         const allPydSelects = document.querySelectorAll('.pyd-select');
-        
+
         allPydSelects.forEach(select => {
             const currentValue = select.value;
             const options = select.querySelectorAll('option');
-            
+
             options.forEach(option => {
                 if (option.value === '' || option.value === currentValue) {
                     option.style.display = '';

@@ -17,44 +17,46 @@ class SktPolicy
 
     public function view(User $user, Skt $skt)
     {
-        return $user->isSuperAdmin() || $user->isAdmin() || 
-               $user->id == $skt->pyd_id || $user->id == $skt->ppp_id;
+        return $user->isAdmin() || 
+               $user->id === $skt->pyd_id || 
+               $user->id === $skt->ppp_id;
     }
 
     public function create(User $user)
     {
-        return $user->isSuperAdmin() || $user->isAdmin();
+        return $user->isAdmin();
     }
 
     public function update(User $user, Skt $skt)
     {
-        return $user->isSuperAdmin() || $user->isAdmin() || 
-               ($user->id == $skt->pyd_id && $skt->status == 'draf') ||
-               ($user->id == $skt->ppp_id && $skt->status == 'diserahkan');
+        if ($user->isAdmin()) {
+            return $skt->status === Skt::STATUS_DRAFT;
+        }
+        
+        if ($user->isPYD()) {
+            return $skt->pyd_id === $user->id && 
+                   ($skt->status === Skt::STATUS_DRAFT || 
+                    ($skt->isAkhirTahunActive() && !$skt->laporan_akhir_pyd));
+        }
+        
+        if ($user->isPPP()) {
+            return $skt->ppp_id === $user->id && 
+                   ($skt->status === Skt::STATUS_SUBMITTED || 
+                    ($skt->isAkhirTahunActive() && !$skt->ulasan_akhir_ppp));
+        }
+        
+        return false;
     }
 
     public function delete(User $user, Skt $skt)
     {
-        return $user->isSuperAdmin() || $user->isAdmin();
-    }
-
-    public function submit(User $user, Skt $skt)
-    {
-        return $user->id == $skt->pyd_id && $skt->status == 'draf';
+        return $user->isAdmin() && $skt->status === Skt::STATUS_DRAFT;
     }
 
     public function approve(User $user, Skt $skt)
     {
-        return $user->id == $skt->ppp_id && $skt->status == 'diserahkan';
-    }
-
-    public function midYearReview(User $user, Skt $skt)
-    {
-        return $user->id == $skt->pyd_id;
-    }
-
-    public function finalReview(User $user, Skt $skt)
-    {
-        return $user->id == $skt->pyd_id || $user->id == $skt->ppp_id;
+        return $user->isPPP() && 
+               $skt->ppp_id === $user->id && 
+               $skt->status === Skt::STATUS_SUBMITTED;
     }
 }

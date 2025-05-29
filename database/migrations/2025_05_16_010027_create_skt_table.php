@@ -18,8 +18,6 @@ return new class extends Migration
             $table->foreignId('ppp_id')->constrained('users');
             $table->text('aktiviti_projek')->nullable();
             $table->text('petunjuk_prestasi')->nullable();
-            $table->text('tambahan_pertengahan_tahun')->nullable();
-            $table->text('guguran_pertengahan_tahun')->nullable();
             $table->text('laporan_akhir_pyd')->nullable();
             $table->text('ulasan_akhir_ppp')->nullable();
             $table->enum('status', ['draf', 'diserahkan', 'disahkan'])->default('draf');

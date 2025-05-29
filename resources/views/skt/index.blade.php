@@ -1,3 +1,4 @@
+<!-- resources/views/skt/index.blade.php -->
 @extends('layouts.app')
 
 @section('content')
@@ -40,6 +41,7 @@
                             <th>PYD</th>
                             <th>Tahun</th>
                             <th>PPP</th>
+                            <th>Fasa</th>
                             <th>Status</th>
                             <th>Tindakan</th>
                         </tr>
@@ -51,12 +53,25 @@
                             <td>{{ $skt->evaluationPeriod->tahun }}</td>
                             <td>{{ $skt->ppp->name }}</td>
                             <td>
+                                @if($skt->evaluationPeriod->active_period === 'awal')
+                                    Awal Tahun
+                                @elseif($skt->evaluationPeriod->active_period === 'pertengahan')
+                                    Pertengahan Tahun
+                                @elseif($skt->evaluationPeriod->active_period === 'akhir')
+                                    Akhir Tahun
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td>
                                 @if($skt->status === 'draf')
                                     <span class="badge bg-secondary">Draf</span>
                                 @elseif($skt->status === 'diserahkan')
                                     <span class="badge bg-warning">Diserahkan</span>
-                                @else
+                                @elseif($skt->status === 'disahkan')
                                     <span class="badge bg-success">Disahkan</span>
+                                @else
+                                    <span class="badge bg-primary">Selesai</span>
                                 @endif
                             </td>
                             <td>
@@ -81,7 +96,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="text-center">Tiada SKT dijumpai.</td>
+                            <td colspan="6" class="text-center">Tiada SKT dijumpai.</td>
                         </tr>
                         @endforelse
                     </tbody>

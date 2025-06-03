@@ -41,6 +41,10 @@ Route::middleware(['auth', 'can:admin'])->group(function () {
 Route::middleware('auth')->group(function () {
     Route::resource('skt', SktController::class);
     Route::get('skt', [SktController::class, 'index'])->name('skt.index');
+    Route::get('skt/{skt}/edit-evaluator', [SktController::class, 'editEvaluator'])
+        ->name('skt.edit-evaluator');
+    Route::put('skt/{skt}/update-evaluator', [SktController::class, 'updateEvaluator'])
+        ->name('skt.update-evaluator');
     Route::post('skt/{skt}/submit', [SktController::class, 'submit'])->name('skt.submit');
     Route::post('skt/{skt}/approve', [SktController::class, 'approve'])->name('skt.approve');
     Route::post('skt/{skt}/mid-year-review', [SktController::class, 'midYearReview'])->name('skt.mid-year-review');

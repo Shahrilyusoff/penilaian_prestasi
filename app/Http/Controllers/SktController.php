@@ -129,6 +129,28 @@ class SktController extends Controller
             ->with('error', 'Tempoh SKT tidak aktif.');
     }
 
+    public function editEvaluator(Skt $skt)
+    {
+        $this->authorize('updateEvaluator', $skt);
+        
+        $ppps = User::where('peranan', 'ppp')->get();
+        return view('skt.edit-evaluator', compact('skt', 'ppps'));
+    }
+
+    public function updateEvaluator(Request $request, Skt $skt)
+    {
+        $this->authorize('updateEvaluator', $skt);
+        
+        $request->validate([
+            'ppp_id' => 'required|exists:users,id',
+        ]);
+        
+        $skt->update(['ppp_id' => $request->ppp_id]);
+        
+        return redirect()->route('skt.show', $skt)
+            ->with('success', 'Penilai berjaya dikemaskini.');
+    }
+
     protected function updateAwalTahun(Request $request, Skt $skt)
     {
         $request->validate([
@@ -178,13 +200,35 @@ class SktController extends Controller
             ];
         }
         
+        // Only change status if actually submitting changes
+        $status = $skt->status;
+        if ($this->hasChanges($skt, $combined)) {
+            $status = Skt::STATUS_SUBMITTED;
+        }
+
+        // Update SKT with changes and status
         $skt->update([
             'aktiviti_projek' => json_encode($combined),
-            'status' => Skt::STATUS_SUBMITTED,
+            'status' => $status,
         ]);
+
+        // ✅ Lock pertengahan tahun if approved
+        if ($status === Skt::STATUS_APPROVED) {
+            $skt->update(['is_pertengahan_locked' => true]);
+        }
+
+        $message = $status === Skt::STATUS_SUBMITTED 
+            ? 'Perubahan SKT Pertengahan Tahun berjaya diserahkan untuk pengesahan.'
+            : 'Tiada perubahan dibuat pada SKT Pertengahan Tahun.';
         
         return redirect()->route('skt.show', $skt)
-            ->with('success', 'SKT Pertengahan Tahun berjaya diserahkan.');
+            ->with('success', $message);
+    }
+
+    protected function hasChanges(Skt $skt, array $newData)
+    {
+        $currentData = json_decode($skt->aktiviti_projek, true);
+        return $currentData !== $newData;
     }
 
     protected function updateAkhirTahun(Request $request, Skt $skt)

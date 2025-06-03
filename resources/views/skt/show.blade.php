@@ -124,39 +124,67 @@
     @endif
 
     @if($skt->isAkhirTahunActive())
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">
-                BAHAGIAN III - Laporan dan Ulasan Keseluruhan Pencapaian SKT
-            </h6>
-        </div>
-        <div class="card-body">
-            <h5>1. Laporan/Ulasan Oleh PYD</h5>
-            <div class="p-3 mb-4 bg-light rounded">
-                {!! $skt->laporan_akhir_pyd ? nl2br(e($skt->laporan_akhir_pyd)) : '<span class="text-muted">Belum diisi</span>' !!}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    Penetapan Sasaran Kerja Tahunan (Versi Akhir)
+                </h6>
             </div>
-            
-            <h5>2. Laporan/Ulasan Oleh PPP</h5>
-            <div class="p-3 mb-4 bg-light rounded">
-                {!! $skt->ulasan_akhir_ppp ? nl2br(e($skt->ulasan_akhir_ppp)) : '<span class="text-muted">Belum diisi</span>' !!}
-            </div>
-            
-            @can('update', $skt)
-                @if(!$skt->laporan_akhir_pyd || !$skt->ulasan_akhir_ppp)
-                <div class="mt-4">
-                    <a href="{{ route('skt.edit', $skt) }}" class="btn btn-primary">
-                        <i class="fas fa-edit me-1"></i> 
-                        @if(auth()->user()->isPYD() && !$skt->laporan_akhir_pyd)
-                            Isi Laporan Akhir
-                        @elseif(auth()->user()->isPPP() && !$skt->ulasan_akhir_ppp)
-                            Isi Ulasan Akhir
-                        @endif
-                    </a>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th width="50%">Ringkasan Aktiviti/Projek</th>
+                                <th width="50%">Petunjuk Prestasi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(json_decode($skt->getFinalAktivitiProjek(), true) as $item)
+                            <tr>
+                                <td>{{ $item['aktiviti'] }}</td>
+                                <td>{{ $item['petunjuk'] }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-                @endif
-            @endcan
+            </div>
         </div>
-    </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    BAHAGIAN III - Laporan dan Ulasan Keseluruhan Pencapaian SKT
+                </h6>
+            </div>
+            <div class="card-body">
+                <h5>1. Laporan/Ulasan Oleh PYD</h5>
+                <div class="p-3 mb-4 bg-light rounded">
+                    {!! $skt->laporan_akhir_pyd ? nl2br(e($skt->laporan_akhir_pyd)) : '<span class="text-muted">Belum diisi</span>' !!}
+                </div>
+                
+                <h5>2. Laporan/Ulasan Oleh PPP</h5>
+                <div class="p-3 mb-4 bg-light rounded">
+                    {!! $skt->ulasan_akhir_ppp ? nl2br(e($skt->ulasan_akhir_ppp)) : '<span class="text-muted">Belum diisi</span>' !!}
+                </div>
+                
+                @can('update', $skt)
+                    @if(!$skt->laporan_akhir_pyd || !$skt->ulasan_akhir_ppp)
+                    <div class="mt-4">
+                        <a href="{{ route('skt.edit', $skt) }}" class="btn btn-primary">
+                            <i class="fas fa-edit me-1"></i> 
+                            @if(auth()->user()->isPYD() && !$skt->laporan_akhir_pyd)
+                                Isi Laporan Akhir
+                            @elseif(auth()->user()->isPPP() && !$skt->ulasan_akhir_ppp)
+                                Isi Ulasan Akhir
+                            @endif
+                        </a>
+                    </div>
+                    @endif
+                @endcan
+            </div>
+        </div>
     @endif
 </div>
 @endsection

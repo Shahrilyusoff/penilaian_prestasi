@@ -35,13 +35,14 @@ class SktPolicy
         
         if ($user->isPYD()) {
             return $skt->pyd_id === $user->id && 
-                   ($skt->status === Skt::STATUS_DRAFT || 
+                ($skt->isAwalTahunActive() || 
+                    $skt->isPertengahanTahunEditable() || 
                     ($skt->isAkhirTahunActive() && !$skt->laporan_akhir_pyd));
         }
         
         if ($user->isPPP()) {
             return $skt->ppp_id === $user->id && 
-                   ($skt->status === Skt::STATUS_SUBMITTED || 
+                ($skt->status === Skt::STATUS_SUBMITTED || 
                     ($skt->isAkhirTahunActive() && !$skt->ulasan_akhir_ppp));
         }
         
@@ -58,5 +59,10 @@ class SktPolicy
         return $user->isPPP() && 
                $skt->ppp_id === $user->id && 
                $skt->status === Skt::STATUS_SUBMITTED;
+    }
+
+    public function updateEvaluator(User $user, Skt $skt)
+    {
+        return $user->isAdmin() && $skt->canAdminEditEvaluator();
     }
 }

@@ -62,6 +62,28 @@ class Skt extends Model
         return $this->evaluationPeriod->active_period === 'pertengahan';
     }
 
+    public function isPertengahanTahunEditable()
+    {
+        // PYD can edit during pertengahan tahun phase
+        return $this->evaluationPeriod->active_period === 'pertengahan' && 
+            ($this->status === self::STATUS_APPROVED || $this->status === self::STATUS_DRAFT);
+    }
+
+    public function canPYDEdit()
+    {
+        $user = auth()->user();
+        return $user->isPYD() && 
+            ($this->isAwalTahunActive() || 
+                $this->isPertengahanTahunEditable() || 
+                ($this->isAkhirTahunActive() && !$this->laporan_akhir_pyd));
+    }
+
+    public function canAdminEditEvaluator()
+    {
+        // Admin can only edit evaluator when in draft status
+        return $this->status === self::STATUS_DRAFT;
+    }
+
     public function isAkhirTahunActive()
     {
         return $this->evaluationPeriod->active_period === 'akhir';
@@ -87,6 +109,19 @@ class Skt extends Model
     public function getIsActiveAttribute()
     {
         return $this->active_period !== null;
+    }
+
+    public function isPertengahanTahunLocked()
+    {
+        // After PPP approves pertengahan tahun, cannot edit anymore
+        return $this->status === self::STATUS_APPROVED && 
+            $this->evaluationPeriod->active_period === 'pertengahan';
+    }
+
+    public function getFinalAktivitiProjek()
+    {
+        // Returns the final version after pertengahan tahun edits
+        return $this->aktiviti_projek;
     }
 
     public function scopeActiveAwalTahun($query)

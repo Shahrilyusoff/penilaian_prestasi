@@ -1,4 +1,3 @@
-<!-- resources/views/skt/index.blade.php -->
 @extends('layouts.app')
 
 @section('content')
@@ -78,11 +77,13 @@
                                 <a href="{{ route('skt.show', $skt) }}" class="btn btn-sm btn-info">
                                     <i class="fas fa-eye"></i>
                                 </a>
+
                                 @can('update', $skt)
                                 <a href="{{ route('skt.edit', $skt) }}" class="btn btn-sm btn-warning">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 @endcan
+
                                 @can('delete', $skt)
                                 <form action="{{ route('skt.destroy', $skt) }}" method="POST" style="display: inline-block;">
                                     @csrf
@@ -91,6 +92,12 @@
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
+                                @endcan
+
+                                @can('updateEvaluator', $skt)
+                                <a href="{{ route('skt.edit-evaluator', $skt) }}" class="btn btn-sm btn-secondary">
+                                    <i class="fas fa-user-edit"></i> Kemaskini Penilai
+                                </a>
                                 @endcan
                             </td>
                         </tr>

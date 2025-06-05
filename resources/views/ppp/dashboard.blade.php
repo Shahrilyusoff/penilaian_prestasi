@@ -12,23 +12,31 @@
         <div class="col-md-6 mb-4">
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">SKT Untuk Penilaian</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">SKT Menunggu Pengesahan</h6>
                 </div>
                 <div class="card-body">
                     @if($pendingSkts->count() > 0)
-                        <ul class="list-group">
+                        <div class="list-group">
                             @foreach($pendingSkts as $skt)
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>{{ $skt->pyd->name }}</strong><br>
-                                        <small class="text-muted">{{ $skt->evaluationPeriod->tahun }}</small>
+                                <a href="{{ route('skt.show', $skt) }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ $skt->pyd->name }}</h6>
+                                        <small>{{ ucfirst($skt->current_phase) }}</small>
                                     </div>
-                                    <a href="{{ route('skt.show', $skt) }}" class="btn btn-sm btn-primary">Lihat</a>
-                                </li>
+                                    <small class="text-muted">
+                                        {{ $skt->evaluationPeriod->tahun }} | 
+                                        Status: 
+                                        @if($skt->status === 'diserahkan_awal')
+                                            <span class="badge bg-warning">Awal Tahun</span>
+                                        @else
+                                            <span class="badge bg-info">Pertengahan Tahun</span>
+                                        @endif
+                                    </small>
+                                </a>
                             @endforeach
-                        </ul>
+                        </div>
                     @else
-                        <p class="text-muted">Tiada SKT yang memerlukan penilaian anda.</p>
+                        <p class="text-muted">Tiada SKT yang menunggu pengesahan.</p>
                     @endif
                 </div>
             </div>
@@ -37,23 +45,26 @@
         <div class="col-md-6 mb-4">
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Penilaian Untuk Dilengkapkan</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Penilaian Menunggu Tindakan</h6>
                 </div>
                 <div class="card-body">
                     @if($pendingEvaluations->count() > 0)
-                        <ul class="list-group">
+                        <div class="list-group">
                             @foreach($pendingEvaluations as $evaluation)
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>{{ $evaluation->pyd->name }}</strong><br>
-                                        <small class="text-muted">{{ $evaluation->evaluationPeriod->tahun }}</small>
+                                <a href="{{ route('evaluations.show', $evaluation) }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ $evaluation->pyd->name }}</h6>
+                                        <small>Penilaian</small>
                                     </div>
-                                    <a href="{{ route('evaluations.show', $evaluation) }}" class="btn btn-sm btn-primary">Lihat</a>
-                                </li>
+                                    <small class="text-muted">
+                                        {{ $evaluation->evaluationPeriod->tahun }} | 
+                                        Status: <span class="badge bg-warning">Draf PPP</span>
+                                    </small>
+                                </a>
                             @endforeach
-                        </ul>
+                        </div>
                     @else
-                        <p class="text-muted">Tiada penilaian yang memerlukan tindakan anda.</p>
+                        <p class="text-muted">Tiada penilaian yang menunggu tindakan.</p>
                     @endif
                 </div>
             </div>
@@ -64,44 +75,37 @@
         <div class="col-md-12 mb-4">
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Penilaian Terkini</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Tempoh Penilaian Aktif</h6>
                 </div>
                 <div class="card-body">
-                    @if($recentEvaluations->count() > 0)
+                    @if($activePeriods->count() > 0)
                         <div class="table-responsive">
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>PYD</th>
-                                        <th>Tempoh</th>
-                                        <th>Status</th>
-                                        <th>Markah PPP</th>
-                                        <th>Tindakan</th>
+                                        <th>Tahun</th>
+                                        <th>Jenis</th>
+                                        <th>Tempoh Awal</th>
+                                        <th>Tempoh Pertengahan</th>
+                                        <th>Tempoh Akhir</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($recentEvaluations as $evaluation)
+                                    @foreach($activePeriods as $period)
                                         <tr>
-                                            <td>{{ $evaluation->pyd->name }}</td>
-                                            <td>{{ $evaluation->evaluationPeriod->tahun }}</td>
+                                            <td>{{ $period->tahun }}</td>
+                                            <td>{{ $period->jenis === 'skt' ? 'SKT' : 'Penilaian' }}</td>
                                             <td>
-                                                @if($evaluation->status == 'selesai')
-                                                    <span class="badge bg-success">Selesai</span>
-                                                @else
-                                                    <span class="badge bg-warning text-dark">{{ ucfirst(str_replace('_', ' ', $evaluation->status)) }}</span>
-                                                @endif
+                                                {{ $period->tarikh_mula_awal->format('d/m/Y') }} - 
+                                                {{ $period->tarikh_tamat_awal->format('d/m/Y') }}
                                             </td>
                                             <td>
-                                                @if($evaluation->status != 'draf_pyd')
-                                                    {{ $evaluation->calculateTotalScore()['ppp'] }}%
-                                                @else
-                                                    -
-                                                @endif
+                                                {{ $period->tarikh_mula_pertengahan->format('d/m/Y') }} - 
+                                                {{ $period->tarikh_tamat_pertengahan->format('d/m/Y') }}
                                             </td>
                                             <td>
-                                                <a href="{{ route('evaluations.show', $evaluation) }}" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
+                                                {{ $period->tarikh_mula_akhir->format('d/m/Y') }} - 
+                                                {{ $period->tarikh_tamat_akhir->format('d/m/Y') }}
                                             </td>
                                         </tr>
                                     @endforeach
@@ -109,7 +113,7 @@
                             </table>
                         </div>
                     @else
-                        <p class="text-muted">Tiada penilaian terkini.</p>
+                        <p class="text-muted">Tiada tempoh penilaian aktif.</p>
                     @endif
                 </div>
             </div>

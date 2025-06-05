@@ -40,15 +40,12 @@ Route::middleware(['auth', 'can:admin'])->group(function () {
 // SKT Routes
 Route::middleware('auth')->group(function () {
     Route::resource('skt', SktController::class);
-    Route::get('skt', [SktController::class, 'index'])->name('skt.index');
-    Route::get('skt/{skt}/edit-evaluator', [SktController::class, 'editEvaluator'])
-        ->name('skt.edit-evaluator');
-    Route::put('skt/{skt}/update-evaluator', [SktController::class, 'updateEvaluator'])
-        ->name('skt.update-evaluator');
-    Route::post('skt/{skt}/submit', [SktController::class, 'submit'])->name('skt.submit');
-    Route::post('skt/{skt}/approve', [SktController::class, 'approve'])->name('skt.approve');
-    Route::post('skt/{skt}/mid-year-review', [SktController::class, 'midYearReview'])->name('skt.mid-year-review');
-    Route::post('skt/{skt}/final-review', [SktController::class, 'finalReview'])->name('skt.final-review');
+    Route::post('skt/{skt}/submit-awal', [SktController::class, 'submitAwal'])->name('skt.submit-awal');
+    Route::post('skt/{skt}/approve-awal', [SktController::class, 'approveAwal'])->name('skt.approve-awal');
+    Route::post('skt/{skt}/submit-pertengahan', [SktController::class, 'submitPertengahan'])->name('skt.submit-pertengahan');
+    Route::post('skt/{skt}/approve-pertengahan', [SktController::class, 'approvePertengahan'])->name('skt.approve-pertengahan');
+    Route::post('skt/{skt}/submit-akhir', [SktController::class, 'submitAkhir'])->name('skt.submit-akhir');
+    Route::post('skt/{skt}/reopen', [SktController::class, 'reopen'])->name('skt.reopen');
 });
 
 // Evaluation Routes

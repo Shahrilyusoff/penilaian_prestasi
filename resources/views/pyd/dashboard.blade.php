@@ -5,6 +5,11 @@
     <div class="row mb-4">
         <div class="col-md-12">
             <h2 class="fw-bold">Dashboard Pegawai Yang Dinilai (PYD)</h2>
+            @if($overdueSkts > 0)
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Anda mempunyai {{ $overdueSkts }} SKT yang belum diserahkan melebihi tempoh!
+                </div>
+            @endif
         </div>
     </div>
 
@@ -12,31 +17,39 @@
         <div class="col-md-6 mb-4">
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">SKT Untuk Dilengkapkan</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">SKT Semasa</h6>
                 </div>
                 <div class="card-body">
-                    @if($pendingSkts->count() > 0)
-                        <ul class="list-group">
-                            @foreach($pendingSkts as $skt)
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>{{ $skt->evaluationPeriod->tahun }}</strong><br>
-                                        <small class="text-muted">PPP: {{ $skt->ppp->name }}</small>
+                    @if($currentSkts->count() > 0)
+                        <div class="list-group">
+                            @foreach($currentSkts as $skt)
+                                <a href="{{ route('skt.show', $skt) }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Tahun {{ $skt->evaluationPeriod->tahun }}</h6>
+                                        <small>{{ ucfirst($skt->current_phase) }}</small>
                                     </div>
-                                    <div>
-                                        <a href="{{ route('skt.show', $skt) }}" class="btn btn-sm btn-primary">
-                                            @if($skt->status == 'draf')
-                                                <i class="fas fa-edit"></i> Lengkapkan
-                                            @else
-                                                <i class="fas fa-eye"></i> Lihat
-                                            @endif
-                                        </a>
-                                    </div>
-                                </li>
+                                    <small class="text-muted">
+                                        PPP: {{ $skt->ppp->name }} | 
+                                        Status: 
+                                        @if($skt->status === 'draf')
+                                            <span class="badge bg-secondary">Draf</span>
+                                        @elseif($skt->status === 'diserahkan_awal')
+                                            <span class="badge bg-warning">Menunggu Pengesahan Awal</span>
+                                        @elseif($skt->status === 'disahkan_awal')
+                                            <span class="badge bg-success">Disahkan Awal</span>
+                                        @elseif($skt->status === 'diserahkan_pertengahan')
+                                            <span class="badge bg-warning">Menunggu Pengesahan Pertengahan</span>
+                                        @elseif($skt->status === 'disahkan_pertengahan')
+                                            <span class="badge bg-success">Disahkan Pertengahan</span>
+                                        @elseif($skt->status === 'selesai')
+                                            <span class="badge bg-primary">Selesai</span>
+                                        @endif
+                                    </small>
+                                </a>
                             @endforeach
-                        </ul>
+                        </div>
                     @else
-                        <p class="text-muted">Tiada SKT yang perlu dilengkapkan.</p>
+                        <p class="text-muted">Tiada SKT untuk tahun semasa.</p>
                     @endif
                 </div>
             </div>
@@ -45,31 +58,27 @@
         <div class="col-md-6 mb-4">
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Penilaian Untuk Dilengkapkan</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Penilaian Semasa</h6>
                 </div>
                 <div class="card-body">
                     @if($pendingEvaluations->count() > 0)
-                        <ul class="list-group">
+                        <div class="list-group">
                             @foreach($pendingEvaluations as $evaluation)
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>{{ $evaluation->evaluationPeriod->tahun }}</strong><br>
-                                        <small class="text-muted">PPP: {{ $evaluation->ppp->name }}</small>
+                                <a href="{{ route('evaluations.show', $evaluation) }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">Tahun {{ $evaluation->evaluationPeriod->tahun }}</h6>
+                                        <small>Penilaian</small>
                                     </div>
-                                    <div>
-                                        <a href="{{ route('evaluations.show', $evaluation) }}" class="btn btn-sm btn-primary">
-                                            @if($evaluation->status == 'draf_pyd')
-                                                <i class="fas fa-edit"></i> Lengkapkan
-                                            @else
-                                                <i class="fas fa-eye"></i> Lihat
-                                            @endif
-                                        </a>
-                                    </div>
-                                </li>
+                                    <small class="text-muted">
+                                        PPP: {{ $evaluation->ppp->name }} | 
+                                        PPK: {{ $evaluation->ppk->name }} | 
+                                        Status: <span class="badge bg-secondary">Draf PYD</span>
+                                    </small>
+                                </a>
                             @endforeach
-                        </ul>
+                        </div>
                     @else
-                        <p class="text-muted">Tiada penilaian yang perlu dilengkapkan.</p>
+                        <p class="text-muted">Tiada penilaian yang menunggu pengisian.</p>
                     @endif
                 </div>
             </div>
@@ -80,46 +89,56 @@
         <div class="col-md-12 mb-4">
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Penilaian Terkini</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Tempoh Aktif</h6>
                 </div>
                 <div class="card-body">
-                    @if($recentEvaluations->count() > 0)
+                    @if($activePeriods->count() > 0)
                         <div class="table-responsive">
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
-                                        <th>Tempoh</th>
-                                        <th>PPP</th>
-                                        <th>PPK</th>
+                                        <th>Fasa</th>
+                                        <th>Tarikh Mula</th>
+                                        <th>Tarikh Tamat</th>
                                         <th>Status</th>
-                                        <th>Markah</th>
-                                        <th>Tindakan</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($recentEvaluations as $evaluation)
+                                    @foreach($activePeriods as $period)
                                         <tr>
-                                            <td>{{ $evaluation->evaluationPeriod->tahun }}</td>
-                                            <td>{{ $evaluation->ppp->name }}</td>
-                                            <td>{{ $evaluation->ppk->name }}</td>
+                                            <td>Awal Tahun</td>
+                                            <td>{{ $period->tarikh_mula_awal->format('d/m/Y') }}</td>
+                                            <td>{{ $period->tarikh_tamat_awal->format('d/m/Y') }}</td>
                                             <td>
-                                                @if($evaluation->status == 'selesai')
-                                                    <span class="badge bg-success">Selesai</span>
+                                                @if(now()->between($period->tarikh_mula_awal, $period->tarikh_tamat_awal))
+                                                    <span class="badge bg-success">Aktif</span>
                                                 @else
-                                                    <span class="badge bg-warning text-dark">{{ ucfirst(str_replace('_', ' ', $evaluation->status)) }}</span>
+                                                    <span class="badge bg-secondary">Tidak Aktif</span>
                                                 @endif
                                             </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Pertengahan Tahun</td>
+                                            <td>{{ $period->tarikh_mula_pertengahan->format('d/m/Y') }}</td>
+                                            <td>{{ $period->tarikh_tamat_pertengahan->format('d/m/Y') }}</td>
                                             <td>
-                                                @if($evaluation->status == 'selesai')
-                                                    {{ $evaluation->calculateTotalScore()['purata'] }}%
+                                                @if(now()->between($period->tarikh_mula_pertengahan, $period->tarikh_tamat_pertengahan))
+                                                    <span class="badge bg-success">Aktif</span>
                                                 @else
-                                                    -
+                                                    <span class="badge bg-secondary">Tidak Aktif</span>
                                                 @endif
                                             </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Akhir Tahun</td>
+                                            <td>{{ $period->tarikh_mula_akhir->format('d/m/Y') }}</td>
+                                            <td>{{ $period->tarikh_tamat_akhir->format('d/m/Y') }}</td>
                                             <td>
-                                                <a href="{{ route('evaluations.show', $evaluation) }}" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-eye"></i> Lihat
-                                                </a>
+                                                @if(now()->between($period->tarikh_mula_akhir, $period->tarikh_tamat_akhir))
+                                                    <span class="badge bg-success">Aktif</span>
+                                                @else
+                                                    <span class="badge bg-secondary">Tidak Aktif</span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -127,7 +146,7 @@
                             </table>
                         </div>
                     @else
-                        <p class="text-muted">Tiada penilaian terkini.</p>
+                        <p class="text-muted">Tiada tempoh penilaian aktif.</p>
                     @endif
                 </div>
             </div>

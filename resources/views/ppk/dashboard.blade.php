@@ -12,7 +12,7 @@
         <div class="col-md-12 mb-4">
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Penilaian Untuk Dilengkapkan</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Penilaian Menunggu Tindakan</h6>
                 </div>
                 <div class="card-body">
                     @if($pendingEvaluations->count() > 0)
@@ -22,8 +22,8 @@
                                     <tr>
                                         <th>PYD</th>
                                         <th>PPP</th>
-                                        <th>Tempoh</th>
-                                        <th>Markah PPP</th>
+                                        <th>Tahun</th>
+                                        <th>Status</th>
                                         <th>Tindakan</th>
                                     </tr>
                                 </thead>
@@ -33,10 +33,12 @@
                                             <td>{{ $evaluation->pyd->name }}</td>
                                             <td>{{ $evaluation->ppp->name }}</td>
                                             <td>{{ $evaluation->evaluationPeriod->tahun }}</td>
-                                            <td>{{ $evaluation->calculateTotalScore()['ppp'] }}%</td>
+                                            <td>
+                                                <span class="badge bg-info">Draf PPK</span>
+                                            </td>
                                             <td>
                                                 <a href="{{ route('evaluations.show', $evaluation) }}" class="btn btn-sm btn-primary">
-                                                    <i class="fas fa-edit"></i> Lengkapkan
+                                                    <i class="fas fa-eye"></i> Lihat
                                                 </a>
                                             </td>
                                         </tr>
@@ -45,7 +47,7 @@
                             </table>
                         </div>
                     @else
-                        <p class="text-muted">Tiada penilaian yang memerlukan tindakan anda.</p>
+                        <p class="text-muted">Tiada penilaian yang menunggu tindakan.</p>
                     @endif
                 </div>
             </div>
@@ -56,56 +58,30 @@
         <div class="col-md-12 mb-4">
             <div class="card shadow">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Penilaian Terkini</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Tempoh Penilaian Aktif</h6>
                 </div>
                 <div class="card-body">
-                    @if($recentEvaluations->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>PYD</th>
-                                        <th>Tempoh</th>
-                                        <th>Status</th>
-                                        <th>Markah PPP</th>
-                                        <th>Markah PPK</th>
-                                        <th>Purata</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($recentEvaluations as $evaluation)
-                                        <tr>
-                                            <td>{{ $evaluation->pyd->name }}</td>
-                                            <td>{{ $evaluation->evaluationPeriod->tahun }}</td>
-                                            <td>
-                                                @if($evaluation->status == 'selesai')
-                                                    <span class="badge bg-success">Selesai</span>
-                                                @else
-                                                    <span class="badge bg-warning text-dark">{{ ucfirst(str_replace('_', ' ', $evaluation->status)) }}</span>
-                                                @endif
-                                            </td>
-                                            <td>{{ $evaluation->calculateTotalScore()['ppp'] }}%</td>
-                                            <td>
-                                                @if($evaluation->status == 'selesai')
-                                                    {{ $evaluation->calculateTotalScore()['ppk'] }}%
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if($evaluation->status == 'selesai')
-                                                    {{ $evaluation->calculateTotalScore()['purata'] }}%
-                                                @else
-                                                    -
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                    @if($activePeriods->count() > 0)
+                        <div class="list-group">
+                            @foreach($activePeriods as $period)
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ $period->tahun }} - {{ $period->jenis === 'skt' ? 'SKT' : 'Penilaian' }}</h6>
+                                        <small>{{ ucfirst($period->active_period) }}</small>
+                                    </div>
+                                    <small class="text-muted">
+                                        @if($period->jenis === 'skt')
+                                            Awal: {{ $period->tarikh_mula_awal->format('d/m/Y') }} - {{ $period->tarikh_tamat_awal->format('d/m/Y') }}<br>
+                                            Akhir: {{ $period->tarikh_mula_akhir->format('d/m/Y') }} - {{ $period->tarikh_tamat_akhir->format('d/m/Y') }}
+                                        @else
+                                            {{ $period->tarikh_mula_penilaian->format('d/m/Y') }} - {{ $period->tarikh_tamat_penilaian->format('d/m/Y') }}
+                                        @endif
+                                    </small>
+                                </div>
+                            @endforeach
                         </div>
                     @else
-                        <p class="text-muted">Tiada penilaian terkini.</p>
+                        <p class="text-muted">Tiada tempoh penilaian aktif.</p>
                     @endif
                 </div>
             </div>

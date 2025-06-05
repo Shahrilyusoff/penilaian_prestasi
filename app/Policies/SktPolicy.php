@@ -2,18 +2,13 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Skt;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class SktPolicy
 {
     use HandlesAuthorization;
-
-    public function viewAny(User $user)
-    {
-        return true;
-    }
 
     public function view(User $user, Skt $skt)
     {
@@ -29,24 +24,7 @@ class SktPolicy
 
     public function update(User $user, Skt $skt)
     {
-        if ($user->isAdmin()) {
-            return $skt->status === Skt::STATUS_DRAFT;
-        }
-        
-        if ($user->isPYD()) {
-            return $skt->pyd_id === $user->id && 
-                ($skt->isAwalTahunActive() || 
-                    $skt->isPertengahanTahunEditable() || 
-                    ($skt->isAkhirTahunActive() && !$skt->laporan_akhir_pyd));
-        }
-        
-        if ($user->isPPP()) {
-            return $skt->ppp_id === $user->id && 
-                ($skt->status === Skt::STATUS_SUBMITTED || 
-                    ($skt->isAkhirTahunActive() && !$skt->ulasan_akhir_ppp));
-        }
-        
-        return false;
+        return $user->isAdmin() && $skt->status === Skt::STATUS_DRAFT;
     }
 
     public function delete(User $user, Skt $skt)
@@ -54,15 +32,45 @@ class SktPolicy
         return $user->isAdmin() && $skt->status === Skt::STATUS_DRAFT;
     }
 
-    public function approve(User $user, Skt $skt)
+    public function submitAwal(User $user, Skt $skt)
     {
-        return $user->isPPP() && 
-               $skt->ppp_id === $user->id && 
-               $skt->status === Skt::STATUS_SUBMITTED;
+        return $user->id === $skt->pyd_id && 
+               $skt->status === Skt::STATUS_DRAFT &&
+               $skt->current_phase === 'awal';
     }
 
-    public function updateEvaluator(User $user, Skt $skt)
+    public function approveAwal(User $user, Skt $skt)
     {
-        return $user->isAdmin() && $skt->canAdminEditEvaluator();
+        return $user->id === $skt->ppp_id && 
+               $skt->status === Skt::STATUS_SUBMITTED_AWAL &&
+               $skt->current_phase === 'awal';
+    }
+
+    public function submitPertengahan(User $user, Skt $skt)
+    {
+        return $user->id === $skt->pyd_id && 
+               $skt->status === Skt::STATUS_APPROVED_AWAL &&
+               $skt->current_phase === 'pertengahan';
+    }
+
+    public function approvePertengahan(User $user, Skt $skt)
+    {
+        return $user->id === $skt->ppp_id && 
+               $skt->status === Skt::STATUS_SUBMITTED_PERTENGAHAN &&
+               $skt->current_phase === 'pertengahan';
+    }
+
+    public function submitAkhir(User $user, Skt $skt)
+    {
+        return ($user->id === $skt->pyd_id || $user->id === $skt->ppp_id) && 
+               $skt->status === Skt::STATUS_APPROVED_PERTENGAHAN &&
+               $skt->current_phase === 'akhir';
+    }
+
+    public function reopen(User $user, Skt $skt)
+    {
+        return $user->isAdmin() && 
+               in_array($skt->current_phase, ['awal', 'pertengahan', 'akhir']) &&
+               !in_array($skt->status, [Skt::STATUS_DRAFT, Skt::STATUS_COMPLETED]);
     }
 }

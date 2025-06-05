@@ -35,7 +35,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                SKT Diserahkan</div>
+                                SKT Menunggu Pengesahan</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ $submittedSkts }}
                             </div>
@@ -95,23 +95,24 @@
                 </div>
                 <div class="card-body">
                     @if($activePeriods->count() > 0)
-                        <ul class="list-group">
+                        <div class="list-group">
                             @foreach($activePeriods as $period)
-                                <li class="list-group-item">
-                                    <strong>{{ $period->tahun }}</strong><br>
-                                    @if($period->jenis === 'penilaian')
-                                        {{ $period->tarikh_mula_penilaian?->format('d/m/Y') }} - {{ $period->tarikh_tamat_penilaian?->format('d/m/Y') }}
-                                    @elseif($period->jenis === 'skt')
-                                        Awal: {{ $period->tarikh_mula_awal?->format('d/m/Y') }} - {{ $period->tarikh_tamat_awal?->format('d/m/Y') }}<br>
-                                        Pertengahan: {{ $period->tarikh_mula_pertengahan?->format('d/m/Y') }} - {{ $period->tarikh_tamat_pertengahan?->format('d/m/Y') }}<br>
-                                        Akhir: {{ $period->tarikh_mula_akhir?->format('d/m/Y') }} - {{ $period->tarikh_tamat_akhir?->format('d/m/Y') }}
-                                    @endif
-                                    <span class="badge bg-{{ $period->is_active ? 'success' : 'secondary' }} float-end">
-                                        {{ $period->is_active ? 'Active' : 'Inactive' }}
-                                    </span>
-                                </li>
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ $period->tahun }} - {{ $period->jenis === 'skt' ? 'SKT' : 'Penilaian' }}</h6>
+                                        <small>{{ $period->active_period ? ucfirst($period->active_period) : 'Tidak Aktif' }}</small>
+                                    </div>
+                                    <small class="text-muted">
+                                        @if($period->jenis === 'skt')
+                                            Awal: {{ $period->tarikh_mula_awal->format('d/m/Y') }} - {{ $period->tarikh_tamat_awal->format('d/m/Y') }}<br>
+                                            Akhir: {{ $period->tarikh_mula_akhir->format('d/m/Y') }} - {{ $period->tarikh_tamat_akhir->format('d/m/Y') }}
+                                        @else
+                                            {{ $period->tarikh_mula_penilaian->format('d/m/Y') }} - {{ $period->tarikh_tamat_penilaian->format('d/m/Y') }}
+                                        @endif
+                                    </small>
+                                </div>
                             @endforeach
-                        </ul>
+                        </div>
                     @else
                         <p class="text-muted">Tiada tempoh penilaian aktif.</p>
                     @endif
@@ -125,7 +126,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">Aktiviti Terkini</h6>
                 </div>
                 <div class="card-body">
-                    @if(isset($recentActivities) && $recentActivities->count() > 0)
+                    @if(count($recentActivities) > 0)
                         <div class="list-group">
                             @foreach($recentActivities as $activity)
                                 <div class="list-group-item">

@@ -1,5 +1,8 @@
+<!-- resources/views/skt/index.blade.php -->
 @extends('layouts.app')
-
+@php
+    use App\Models\Skt;
+@endphp
 @section('content')
 <div class="container-fluid">
     <div class="row mb-4">
@@ -40,7 +43,7 @@
                             <th>PYD</th>
                             <th>Tahun</th>
                             <th>PPP</th>
-                            <th>Fasa</th>
+                            <th>Fasa Semasa</th>
                             <th>Status</th>
                             <th>Tindakan</th>
                         </tr>
@@ -52,38 +55,38 @@
                             <td>{{ $skt->evaluationPeriod->tahun }}</td>
                             <td>{{ $skt->ppp->name }}</td>
                             <td>
-                                @if($skt->evaluationPeriod->active_period === 'awal')
-                                    Awal Tahun
-                                @elseif($skt->evaluationPeriod->active_period === 'pertengahan')
-                                    Pertengahan Tahun
-                                @elseif($skt->evaluationPeriod->active_period === 'akhir')
-                                    Akhir Tahun
+                                @if($skt->current_phase)
+                                    {{ ucfirst($skt->current_phase) }}
                                 @else
-                                    -
+                                    <span class="text-muted">Tiada</span>
                                 @endif
                             </td>
                             <td>
-                                @if($skt->status === 'draf')
+                                @if($skt->status === Skt::STATUS_DRAFT)
                                     <span class="badge bg-secondary">Draf</span>
-                                @elseif($skt->status === 'diserahkan')
-                                    <span class="badge bg-warning">Diserahkan</span>
-                                @elseif($skt->status === 'disahkan')
-                                    <span class="badge bg-success">Disahkan</span>
-                                @else
-                                    <span class="badge bg-primary">Selesai</span>
+                                @elseif($skt->status === Skt::STATUS_SUBMITTED_AWAL)
+                                    <span class="badge bg-warning">Menunggu Pengesahan Awal</span>
+                                @elseif($skt->status === Skt::STATUS_APPROVED_AWAL)
+                                    <span class="badge bg-info">Disahkan Awal</span>
+                                @elseif($skt->status === Skt::STATUS_SUBMITTED_PERTENGAHAN)
+                                    <span class="badge bg-warning">Menunggu Pengesahan Pertengahan</span>
+                                @elseif($skt->status === Skt::STATUS_APPROVED_PERTENGAHAN)
+                                    <span class="badge bg-info">Disahkan Pertengahan</span>
+                                @elseif($skt->status === Skt::STATUS_COMPLETED)
+                                    <span class="badge bg-success">Selesai</span>
+                                @elseif($skt->status === Skt::STATUS_NOT_SUBMITTED)
+                                    <span class="badge bg-danger">Tidak Diserahkan</span>
                                 @endif
                             </td>
                             <td>
                                 <a href="{{ route('skt.show', $skt) }}" class="btn btn-sm btn-info">
                                     <i class="fas fa-eye"></i>
                                 </a>
-
                                 @can('update', $skt)
                                 <a href="{{ route('skt.edit', $skt) }}" class="btn btn-sm btn-warning">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 @endcan
-
                                 @can('delete', $skt)
                                 <form action="{{ route('skt.destroy', $skt) }}" method="POST" style="display: inline-block;">
                                     @csrf
@@ -92,12 +95,6 @@
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
-                                @endcan
-
-                                @can('updateEvaluator', $skt)
-                                <a href="{{ route('skt.edit-evaluator', $skt) }}" class="btn btn-sm btn-secondary">
-                                    <i class="fas fa-user-edit"></i> Kemaskini Penilai
-                                </a>
                                 @endcan
                             </td>
                         </tr>

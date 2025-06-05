@@ -4,27 +4,42 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Skt extends Model
 {
     use HasFactory;
-    protected $table ='skt';
+
+    protected $table = 'skt';
 
     protected $fillable = [
         'evaluation_period_id',
         'pyd_id',
         'ppp_id',
-        'aktiviti_projek',
-        'petunjuk_prestasi',
-        'laporan_akhir_pyd',
-        'ulasan_akhir_ppp',
+        'skt_awal',
+        'skt_awal_approved_at',
+        'skt_pertengahan',
+        'skt_pertengahan_approved_at',
+        'skt_akhir_pyd',   // string report, no casting here
+        'skt_akhir_ppp',   // string report, no casting here
         'status'
     ];
 
+    protected $casts = [
+        'skt_awal' => 'array',
+        'skt_pertengahan' => 'array',
+        'skt_awal_approved_at' => 'datetime',
+        'skt_pertengahan_approved_at' => 'datetime',
+        // removed skt_akhir_pyd and skt_akhir_ppp casts
+    ];
+
     const STATUS_DRAFT = 'draf';
-    const STATUS_SUBMITTED = 'diserahkan';
-    const STATUS_APPROVED = 'disahkan';
+    const STATUS_SUBMITTED_AWAL = 'diserahkan_awal';
+    const STATUS_APPROVED_AWAL = 'disahkan_awal';
+    const STATUS_SUBMITTED_PERTENGAHAN = 'diserahkan_pertengahan';
+    const STATUS_APPROVED_PERTENGAHAN = 'disahkan_pertengahan';
     const STATUS_COMPLETED = 'selesai';
+    const STATUS_NOT_SUBMITTED = 'tidak_diserahkan';
 
     public function evaluationPeriod()
     {
@@ -41,104 +56,47 @@ class Skt extends Model
         return $this->belongsTo(User::class, 'ppp_id');
     }
 
-    public function canEdit()
+    public function getCurrentPhaseAttribute()
     {
-        return $this->status === self::STATUS_DRAFT || 
-               ($this->status === self::STATUS_SUBMITTED && auth()->id() === $this->ppp_id);
-    }
+        $period = $this->evaluationPeriod;
+        $today = Carbon::today();
 
-    public function canDelete()
-    {
-        return $this->status === self::STATUS_DRAFT && auth()->user()->isAdmin();
-    }
+        if ($today->between($period->tarikh_mula_awal, $period->tarikh_tamat_awal)) {
+            return 'awal';
+        } elseif ($today->between($period->tarikh_mula_pertengahan, $period->tarikh_tamat_pertengahan)) {
+            return 'pertengahan';
+        } elseif ($today->between($period->tarikh_mula_akhir, $period->tarikh_tamat_akhir)) {
+            return 'akhir';
+        }
 
-    public function isAwalTahunActive()
-    {
-        return $this->evaluationPeriod->active_period === 'awal';
-    }
-
-    public function isPertengahanTahunActive()
-    {
-        return $this->evaluationPeriod->active_period === 'pertengahan';
-    }
-
-    public function isPertengahanTahunEditable()
-    {
-        // PYD can edit during pertengahan tahun phase
-        return $this->evaluationPeriod->active_period === 'pertengahan' && 
-            ($this->status === self::STATUS_APPROVED || $this->status === self::STATUS_DRAFT);
+        return null;
     }
 
     public function canPYDEdit()
     {
-        $user = auth()->user();
-        return $user->isPYD() && 
-            ($this->isAwalTahunActive() || 
-                $this->isPertengahanTahunEditable() || 
-                ($this->isAkhirTahunActive() && !$this->laporan_akhir_pyd));
-    }
-
-    public function canAdminEditEvaluator()
-    {
-        // Admin can only edit evaluator when in draft status
-        return $this->status === self::STATUS_DRAFT;
-    }
-
-    public function isAkhirTahunActive()
-    {
-        return $this->evaluationPeriod->active_period === 'akhir';
-    }
-
-    public function getActivePeriodAttribute()
-    {
-        $today = Carbon::today();
-        
-        if ($this->jenis === self::JENIS_SKT) {
-            if ($today->between($this->tarikh_mula_awal, $this->tarikh_tamat_awal)) {
-                return 'awal';
-            } elseif ($today->between($this->tarikh_mula_pertengahan, $this->tarikh_tamat_pertengahan)) {
-                return 'pertengahan';
-            } elseif ($today->between($this->tarikh_mula_akhir, $this->tarikh_tamat_akhir)) {
-                return 'akhir';
-            }
+        if ($this->status === self::STATUS_DRAFT && $this->current_phase === 'awal') {
+            return true;
         }
-        
-        return null;
+
+        if ($this->status === self::STATUS_APPROVED_AWAL && $this->current_phase === 'pertengahan') {
+            return true;
+        }
+
+        if ($this->status === self::STATUS_APPROVED_PERTENGAHAN && $this->current_phase === 'akhir') {
+            return true;
+        }
+
+        return false;
     }
 
-    public function getIsActiveAttribute()
+    public function canPPPApprove()
     {
-        return $this->active_period !== null;
+        return ($this->status === self::STATUS_SUBMITTED_AWAL && $this->current_phase === 'awal') ||
+               ($this->status === self::STATUS_SUBMITTED_PERTENGAHAN && $this->current_phase === 'pertengahan');
     }
 
-    public function isPertengahanTahunLocked()
+    public function isCompleted()
     {
-        // After PPP approves pertengahan tahun, cannot edit anymore
-        return $this->status === self::STATUS_APPROVED && 
-            $this->evaluationPeriod->active_period === 'pertengahan';
-    }
-
-    public function getFinalAktivitiProjek()
-    {
-        // Returns the final version after pertengahan tahun edits
-        return $this->aktiviti_projek;
-    }
-
-    public function scopeActiveAwalTahun($query)
-    {
-        return $query->whereDate('tarikh_mula_awal', '<=', now())
-            ->whereDate('tarikh_tamat_awal', '>=', now());
-    }
-
-    public function scopeActivePertengahanTahun($query)
-    {
-        return $query->whereDate('tarikh_mula_pertengahan', '<=', now())
-            ->whereDate('tarikh_tamat_pertengahan', '>=', now());
-    }
-
-    public function scopeActiveAkhirTahun($query)
-    {
-        return $query->whereDate('tarikh_mula_akhir', '<=', now())
-            ->whereDate('tarikh_tamat_akhir', '>=', now());
+        return $this->status === self::STATUS_COMPLETED;
     }
 }

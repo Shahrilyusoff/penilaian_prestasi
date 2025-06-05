@@ -174,19 +174,18 @@ class SktController extends Controller
         $this->authorize('submitPertengahan', $skt);
         
         $request->validate([
-            'skt_pertengahan' => 'nullable|array',
-            'skt_pertengahan.*.aktiviti' => 'required_with:skt_pertengahan|string',
-            'skt_pertengahan.*.petunjuk' => 'required_with:skt_pertengahan|string',
-            'skt_pertengahan.*.action' => 'required_with:skt_pertengahan|in:tambah,gugurkan',
+            'skt_pertengahan' => 'required|array',
+            'skt_pertengahan.*.aktiviti' => 'required|string',
+            'skt_pertengahan.*.petunjuk' => 'required|string',
         ]);
         
         $skt->update([
-            'skt_pertengahan' => $request->skt_pertengahan ?: [],
-            'status' => $request->skt_pertengahan ? Skt::STATUS_SUBMITTED_PERTENGAHAN : Skt::STATUS_APPROVED_AWAL,
+            'skt_pertengahan' => $request->skt_pertengahan,
+            'status' => Skt::STATUS_SUBMITTED_PERTENGAHAN,
         ]);
         
         return redirect()->route('skt.show', $skt)
-            ->with('success', 'SKT Pertengahan Tahun berjaya dikemaskini.');
+            ->with('success', 'SKT Pertengahan Tahun berjaya diserahkan.');
     }
 
     public function approvePertengahan(Skt $skt)

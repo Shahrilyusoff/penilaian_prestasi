@@ -181,68 +181,47 @@
                 
                 <!-- Pertengahan Tahun Tab -->
                 <div class="tab-pane fade {{ $skt->current_phase === 'pertengahan' ? 'show active' : '' }}" 
-                     id="pertengahan" role="tabpanel">
-                     
-                    @if($skt->status === Skt::STATUS_APPROVED_AWAL && $skt->current_phase === 'pertengahan' && auth()->user()->id === $skt->pyd_id)
+                    id="pertengahan" role="tabpanel">
+                    
+                    @if($skt->canEditPertengahan())
                         <form method="POST" action="{{ route('skt.submit-pertengahan', $skt) }}">
                             @csrf
                             <div class="mb-4">
                                 <h5>BAHAGIAN II – Kajian Semula Sasaran Kerja Tahunan Pertengahan Tahun</h5>
+                                <p class="text-muted">(PYD boleh mengemaskini SKT yang telah ditetapkan di awal tahun)</p>
                             </div>
                             
-                            @if($skt->skt_awal)
-                                <div id="skt-pertengahan-container">
-                                    @foreach($skt->skt_awal as $index => $item)
-                                        <div class="card mb-3">
-                                            <div class="card-header">
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" 
-                                                           name="skt_pertengahan[{{ $index }}][action]" 
-                                                           id="keep-{{ $index }}" value="keep" checked>
-                                                    <label class="form-check-label" for="keep-{{ $index }}">
-                                                        Kekal
-                                                    </label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" 
-                                                           name="skt_pertengahan[{{ $index }}][action]" 
-                                                           id="tambah-{{ $index }}" value="tambah">
-                                                    <label class="form-check-label" for="tambah-{{ $index }}">
-                                                        Tambah
-                                                    </label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" 
-                                                           name="skt_pertengahan[{{ $index }}][action]" 
-                                                           id="gugurkan-{{ $index }}" value="gugurkan">
-                                                    <label class="form-check-label" for="gugurkan-{{ $index }}">
-                                                        Gugurkan
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <input type="text" name="skt_pertengahan[{{ $index }}][aktiviti]" 
-                                                               class="form-control" placeholder="Aktiviti/Projek" 
-                                                               value="{{ $item['aktiviti'] }}" required>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <input type="text" name="skt_pertengahan[{{ $index }}][petunjuk]" 
-                                                               class="form-control" placeholder="Petunjuk Prestasi" 
-                                                               value="{{ $item['petunjuk'] }}" required>
-                                                    </div>
-                                                </div>
-                                            </div>
+                            <div id="skt-pertengahan-container">
+                                @foreach(old('skt_pertengahan', $skt->skt_awal ?? []) as $index => $item)
+                                    <div class="row mb-3 skt-pertengahan-item">
+                                        <div class="col-md-6">
+                                            <input type="text" name="skt_pertengahan[{{ $index }}][aktiviti]" 
+                                                class="form-control" placeholder="Aktiviti/Projek" 
+                                                value="{{ $item['aktiviti'] }}" required>
                                         </div>
-                                    @endforeach
-                                </div>
-                                
-                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                    <button type="submit" name="action" value="submit" class="btn btn-primary">Serahkan</button>
-                                    <button type="submit" name="action" value="skip" class="btn btn-secondary">Langkau</button>
-                                </div>
-                            @endif
+                                        <div class="col-md-5">
+                                            <input type="text" name="skt_pertengahan[{{ $index }}][petunjuk]" 
+                                                class="form-control" placeholder="Petunjuk Prestasi" 
+                                                value="{{ $item['petunjuk'] }}" required>
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button type="button" class="btn btn-danger remove-pertengahan-item">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            
+                            <div class="mb-3">
+                                <button type="button" id="add-pertengahan-item" class="btn btn-sm btn-secondary">
+                                    <i class="fas fa-plus"></i> Tambah Aktiviti
+                                </button>
+                            </div>
+                            
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="submit" class="btn btn-primary">Serahkan</button>
+                            </div>
                         </form>
                     @else
                         <div class="mb-4">
@@ -255,8 +234,7 @@
                                     <thead>
                                         <tr>
                                             <th width="50%">Aktiviti/Projek</th>
-                                            <th width="40%">Petunjuk Prestasi</th>
-                                            <th width="10%">Tindakan</th>
+                                            <th width="50%">Petunjuk Prestasi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -264,22 +242,13 @@
                                             <tr>
                                                 <td>{{ $item['aktiviti'] }}</td>
                                                 <td>{{ $item['petunjuk'] }}</td>
-                                                <td>
-                                                    @if($item['action'] === 'tambah')
-                                                        <span class="badge bg-success">Tambah</span>
-                                                    @elseif($item['action'] === 'gugurkan')
-                                                        <span class="badge bg-danger">Gugurkan</span>
-                                                    @else
-                                                        <span class="badge bg-secondary">Kekal</span>
-                                                    @endif
-                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
                             </div>
                             
-                            @if($skt->status === Skt::STATUS_SUBMITTED_PERTENGAHAN && auth()->user()->id === $skt->ppp_id)
+                            @if($skt->canApprovePertengahan())
                                 <form method="POST" action="{{ route('skt.approve-pertengahan', $skt) }}" class="text-end">
                                     @csrf
                                     <button type="submit" class="btn btn-success">Sahkan</button>
@@ -409,6 +378,71 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('remove-awal-item')) {
             e.target.closest('.skt-awal-item').remove();
+        }
+    });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Dynamic form for Awal Tahun
+    let awalIndex = {{ $skt->skt_awal ? count($skt->skt_awal) : 1 }};
+    let pertengahanIndex = {{ $skt->skt_awal ? count($skt->skt_awal) : 1 }};
+    
+    // Awal Tahun
+    document.getElementById('add-awal-item')?.addEventListener('click', function() {
+        const container = document.getElementById('skt-awal-container');
+        const newItem = document.createElement('div');
+        newItem.className = 'row mb-3 skt-awal-item';
+        newItem.innerHTML = `
+            <div class="col-md-6">
+                <input type="text" name="skt_awal[${awalIndex}][aktiviti]" 
+                       class="form-control" placeholder="Aktiviti/Projek" required>
+            </div>
+            <div class="col-md-5">
+                <input type="text" name="skt_awal[${awalIndex}][petunjuk]" 
+                       class="form-control" placeholder="Petunjuk Prestasi" required>
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-danger remove-awal-item">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(newItem);
+        awalIndex++;
+    });
+    
+    // Pertengahan Tahun
+    document.getElementById('add-pertengahan-item')?.addEventListener('click', function() {
+        const container = document.getElementById('skt-pertengahan-container');
+        const newItem = document.createElement('div');
+        newItem.className = 'row mb-3 skt-pertengahan-item';
+        newItem.innerHTML = `
+            <div class="col-md-6">
+                <input type="text" name="skt_pertengahan[${pertengahanIndex}][aktiviti]" 
+                       class="form-control" placeholder="Aktiviti/Projek" required>
+            </div>
+            <div class="col-md-5">
+                <input type="text" name="skt_pertengahan[${pertengahanIndex}][petunjuk]" 
+                       class="form-control" placeholder="Petunjuk Prestasi" required>
+            </div>
+            <div class="col-md-1">
+                <button type="button" class="btn btn-danger remove-pertengahan-item">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        container.appendChild(newItem);
+        pertengahanIndex++;
+    });
+    
+    // Remove buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-awal-item')) {
+            e.target.closest('.skt-awal-item').remove();
+        }
+        if (e.target.classList.contains('remove-pertengahan-item')) {
+            e.target.closest('.skt-pertengahan-item').remove();
         }
     });
 });

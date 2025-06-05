@@ -72,6 +72,20 @@ class Skt extends Model
         return null;
     }
 
+    public function canEditPertengahan()
+    {
+        return $this->status === self::STATUS_APPROVED_AWAL && 
+            $this->current_phase === 'pertengahan' &&
+            auth()->user()->id === $this->pyd_id;
+    }
+
+    public function canApprovePertengahan()
+    {
+        return $this->status === self::STATUS_SUBMITTED_PERTENGAHAN && 
+            $this->current_phase === 'pertengahan' &&
+            auth()->user()->id === $this->ppp_id;
+    }
+
     public function canPYDEdit()
     {
         if ($this->status === self::STATUS_DRAFT && $this->current_phase === 'awal') {

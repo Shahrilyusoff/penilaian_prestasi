@@ -183,177 +183,74 @@
     }
 }
 
-/* Login Page Styles */
-.login-container {
+// Login page specific styles
+.login-page {
+    height: 100vh;
     display: flex;
-    justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
-    padding: 20px;
+    background-color: #f8fafc;
 }
 
-.login-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+.login-image {
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(52, 144, 220, 0.7);
+    }
+}
+
+.login-content {
+    padding: 3rem;
+    max-width: 500px;
     width: 100%;
-    max-width: 450px;
-    overflow: hidden;
-    animation: fadeIn 0.5s ease-in-out;
-}
-
-.login-header {
-    background: #2c3e50;
-    color: white;
-    padding: 30px 20px;
-    text-align: center;
 }
 
 .login-logo {
-    margin-bottom: 15px;
+    text-align: center;
+    margin-bottom: 2rem;
+    
     img {
-        height: 70px;
-        width: auto;
+        height: 80px;
     }
 }
 
 .login-title {
     font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 5px;
-}
-
-.login-subtitle {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    margin-bottom: 0;
-}
-
-.login-form {
-    padding: 30px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 8px;
     font-weight: 600;
-    color: #4a5568;
-    i {
-        margin-right: 8px;
-        color: #718096;
-    }
-}
-
-.input-group {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.form-control {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-    &:focus {
-        border-color: #4299e1;
-        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
-    }
-}
-
-.password-toggle {
-    position: absolute;
-    right: 12px;
-    background: none;
-    border: none;
-    color: #718096;
-    cursor: pointer;
-    &:hover {
-        color: #2d3748;
-    }
-}
-
-.form-options {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 20px 0;
-}
-
-.form-check {
-    display: flex;
-    align-items: center;
-    input {
-        margin-right: 8px;
-    }
-    label {
-        font-size: 0.9rem;
-        color: #4a5568;
-    }
-}
-
-.forgot-password {
-    font-size: 0.9rem;
-    color: #4299e1;
-    text-decoration: none;
-    &:hover {
-        text-decoration: underline;
-    }
-}
-
-.btn-login {
-    width: 100%;
-    padding: 12px;
-    background: #2c3e50;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    &:hover {
-        background: #1a252f;
-        transform: translateY(-2px);
-    }
-    i {
-        margin-right: 8px;
-    }
+    margin-bottom: 2rem;
+    text-align: center;
+    color: #2d3748;
 }
 
 .login-footer {
     text-align: center;
-    padding: 15px;
-    font-size: 0.8rem;
+    margin-top: 2rem;
     color: #718096;
-    border-top: 1px solid #e2e8f0;
-    p {
-        margin: 5px 0;
-    }
+    font-size: 0.875rem;
 }
 
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsive Adjustments */
-@media (max-width: 480px) {
-    .login-card {
-        border-radius: 0;
+// Responsive adjustments
+@media (max-width: 767.98px) {
+    .login-page {
+        height: auto;
+        min-height: 100vh;
+        padding: 2rem 0;
     }
-    .login-header {
-        padding: 20px;
+    
+    .login-image {
+        height: 300px !important;
     }
-    .login-form {
-        padding: 20px;
+    
+    .login-content {
+        padding: 2rem;
     }
 }

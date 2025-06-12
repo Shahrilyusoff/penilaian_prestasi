@@ -3,87 +3,75 @@
 @section('title', 'Log Masuk Sistem Penilaian Prestasi')
 
 @section('content')
-<div class="login-container">
-    <div class="login-card">
-        <div class="login-header">
-            <div class="login-logo">
-                <img src="{{ asset('images/logoikma.png') }}" alt="Institut Koperasi Malaysia">
+<div class="container-fluid vh-100">
+    <div class="row h-100">
+        <!-- Left Side with Image -->
+        <div class="col-md-6 d-none d-md-block p-0">
+            <div class="login-image h-100" style="background-image: url('{{ asset('images/backikma.jpg') }}');">
+                <div class="login-overlay d-flex align-items-center justify-content-center">
+                    <div class="text-center text-white px-5">
+                        <h1 class="display-4 fw-bold mb-4">Institut Koperasi Malaysia</h1>
+                        <p class="lead">Sistem Penilaian Prestasi</p>
+                    </div>
+                </div>
             </div>
-            <h2 class="login-title">SISTEM PENILAIAN PRESTASI</h2>
-            <p class="login-subtitle">Institut Koperasi Malaysia</p>
         </div>
 
-        <form method="POST" action="{{ route('login') }}" class="login-form">
-            @csrf
-
-            <div class="form-group">
-                <label for="email" class="form-label">
-                    <i class="fas fa-envelope"></i> Alamat Emel
-                </label>
-                <div class="input-group">
-                    <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" 
-                           name="email" value="{{ old('email') }}" required autocomplete="email" autofocus
-                           placeholder="Masukkan Emel">
+        <!-- Right Side with Login Form -->
+        <div class="col-md-6 d-flex align-items-center justify-content-center">
+            <div class="w-100 px-4 py-5" style="max-width: 500px;">
+                <div class="text-center mb-5">
+                    <img src="{{ asset('images/logoikma.png') }}" alt="Logo" class="mb-4" style="height: 80px;">
+                    <h2 class="h4 text-gray-900 mb-4">Log Masuk ke Akaun Anda</h2>
                 </div>
-                @error('email')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
 
-            <div class="form-group">
-                <label for="password" class="form-label">
-                    <i class="fas fa-lock"></i> Kata Laluan
-                </label>
-                <div class="input-group">
-                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" 
-                           name="password" required autocomplete="current-password" placeholder="Masukkan kata laluan">
-                    <button type="button" class="password-toggle" onclick="togglePassword()">
-                        <i class="fas fa-eye"></i>
+                <form method="POST" action="{{ route('login') }}" class="user">
+                    @csrf
+
+                    <div class="mb-4">
+                        <input type="email" class="form-control form-control-user @error('email') is-invalid @enderror" 
+                               id="email" name="email" value="{{ old('email') }}" 
+                               placeholder="Masukkan Alamat Emel" required autocomplete="email" autofocus>
+                        @error('email')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <input type="password" class="form-control form-control-user @error('password') is-invalid @enderror" 
+                               id="password" name="password" placeholder="Kata Laluan" required autocomplete="current-password">
+                        @error('password')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                        @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="remember">
+                                Ingat Saya
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-user btn-block">
+                        Log Masuk
                     </button>
+                </form>
+
+                <hr>
+
+                <div class="text-center">
+                    @if (Route::has('password.request'))
+                        <a class="small" href="{{ route('password.request') }}">Lupa Kata Laluan?</a>
+                    @endif
                 </div>
-                @error('password')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
             </div>
-
-            <div class="form-options">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="remember">Ingat Saya</label>
-                </div>
-                @if (Route::has('password.request'))
-                    <a class="forgot-password" href="{{ route('password.request') }}">
-                        Lupa Kata Laluan?
-                    </a>
-                @endif
-            </div>
-
-            <div class="form-submit">
-                <button type="submit" class="btn btn-login">
-                    <i class="fas fa-sign-in-alt"></i> LOG MASUK
-                </button>
-            </div>
-        </form>
-
-        <div class="login-footer">
-            <p>Versi Sistem: {{ config('app.version', '1.0.0') }}</p>
-            <p>&copy; {{ date('Y') }} Institut Koperasi Malaysia. Hak Cipta Terpelihara.</p>
         </div>
     </div>
 </div>
-
-<script>
-function togglePassword() {
-    const password = document.getElementById('password');
-    const toggle = document.querySelector('.password-toggle i');
-    
-    if (password.type === 'password') {
-        password.type = 'text';
-        toggle.classList.replace('fa-eye', 'fa-eye-slash');
-    } else {
-        password.type = 'password';
-        toggle.classList.replace('fa-eye-slash', 'fa-eye');
-    }
-}
-</script>
 @endsection

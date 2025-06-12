@@ -221,18 +221,28 @@ public function store(Request $request)
     protected function updateBahagianII(Request $request, Evaluation $evaluation)
     {
         $request->validate([
-            'kegiatan_sumbangan' => 'required|string',
-            'latihan_dihadiri' => 'required|string',
-            'latihan_diperlukan' => 'required|string',
+            'kegiatan' => 'required|array',
+            'kegiatan.*.kegiatan' => 'required|string',
+            'kegiatan.*.peringkat' => 'required|string',
+            'latihan' => 'required|array',
+            'latihan.*.nama' => 'required|string',
+            'latihan.*.tarikh' => 'required|string',
+            'latihan.*.tempat' => 'required|string',
+            'diperlukan' => 'required|array',
+            'diperlukan.*.nama' => 'required|string',
+            'diperlukan.*.sebab' => 'required|string',
         ]);
 
         $evaluation->update([
-            'kegiatan_sumbangan' => $request->kegiatan_sumbangan,
-            'latihan_dihadiri' => $request->latihan_dihadiri,
-            'latihan_diperlukan' => $request->latihan_diperlukan,
+            'kegiatan_sumbangan' => json_encode($request->kegiatan),
+            'latihan_dihadiri' => json_encode($request->latihan),
+            'latihan_diperlukan' => json_encode($request->diperlukan),
         ]);
 
-        return back()->with('success', 'Bahagian II berjaya dikemaskini.');
+        return redirect()->route('evaluations.show', [
+            'evaluation' => $evaluation,
+            'bahagian' => 'II'
+        ])->with('success', 'Bahagian II berjaya dikemaskini.');
     }
 
     protected function updateMarkah(Request $request, Evaluation $evaluation, $bahagian, $user)

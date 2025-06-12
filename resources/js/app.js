@@ -128,3 +128,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 });
+
+// Handle form submission and modal closing
+document.addEventListener('DOMContentLoaded', function() {
+    const editBahagianIIModal = document.getElementById('editBahagianIIModal');
+    if (editBahagianIIModal) {
+        editBahagianIIModal.addEventListener('hidden.bs.modal', function () {
+            // Refresh the page or specific content after modal closes
+            window.location.reload();
+        });
+    }
+});

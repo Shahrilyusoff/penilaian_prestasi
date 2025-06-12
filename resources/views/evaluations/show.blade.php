@@ -216,45 +216,52 @@
         </div>
 
         <!-- Bahagian II -->
-        <div class="tab-pane fade @if(request()->get('bahagian') === 'II') show active @endif" 
-             id="pills-bahagianII" 
-             role="tabpanel" 
-             aria-labelledby="pills-bahagianII-tab">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-primary">Bahagian II - Kegiatan dan Sumbangan di Luar Tugas Rasmi/Latihan</h6>
-                    @if($evaluation->canEditBahagian('II', auth()->user()))
-                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editBahagianIIModal">
-                        <i class="fas fa-edit"></i> Kemaskini
-                    </button>
-                    @endif
-                </div>
-                <div class="card-body">
-                    <h5>1. Kegiatan dan Sumbangan di Luar Tugas Rasmi</h5>
-                    <div class="table-responsive mb-4">
-                        <table class="table table-bordered">
-                            <thead>
+<div class="tab-pane fade @if(request()->get('bahagian') === 'II') show active @endif" 
+     id="pills-bahagianII" 
+     role="tabpanel" 
+     aria-labelledby="pills-bahagianII-tab">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Bahagian II - Kegiatan dan Sumbangan di Luar Tugas Rasmi/Latihan</h6>
+            @if($evaluation->canEditBahagian('II', auth()->user()))
+            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editBahagianIIModal">
+                <i class="fas fa-edit"></i> Kemaskini
+            </button>
+            @endif
+        </div>
+        <div class="card-body">
+            @if(session('success') && request()->get('bahagian') === 'II')
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            @endif
+            
+            <h5>1. Kegiatan dan Sumbangan di Luar Tugas Rasmi</h5>
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="50%">Kegiatan/Aktiviti/Sumbangan</th>
+                            <th>Peringkat (Jawatan/Pencapaian)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if($evaluation->kegiatan_sumbangan)
+                            @foreach(json_decode($evaluation->kegiatan_sumbangan, true) as $activity)
                                 <tr>
-                                    <th width="50%">Kegiatan/Aktiviti/Sumbangan</th>
-                                    <th>Peringkat (Jawatan/Pencapaian)</th>
+                                    <td>{{ $activity['kegiatan'] }}</td>
+                                    <td>{{ $activity['peringkat'] }}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                @if($evaluation->kegiatan_sumbangan)
-                                    @foreach(json_decode($evaluation->kegiatan_sumbangan, true) as $activity)
-                                        <tr>
-                                            <td>{{ $activity['kegiatan'] }}</td>
-                                            <td>{{ $activity['peringkat'] }}</td>
-                                        </tr>
-                                    @endforeach
-                                @else
-                                    <tr>
-                                        <td colspan="2" class="text-center">Tiada maklumat</td>
-                                    </tr>
-                                @endif
-                            </tbody>
-                        </table>
-                    </div>
+                            @endforeach
+                        @else
+                            <tr>
+                                <td colspan="2" class="text-center">Tiada maklumat</td>
+                            </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
 
                     <h5>2. Latihan</h5>
                     <h6>i) Latihan Dihadiri</h6>

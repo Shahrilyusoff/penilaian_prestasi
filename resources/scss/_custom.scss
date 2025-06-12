@@ -125,6 +125,64 @@
     }
 }
 
+// Evaluation specific styles
+.evaluation-stepper {
+    .nav-pills {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        
+        .nav-item {
+            white-space: nowrap;
+        }
+    }
+    
+    .tab-content {
+        padding: 20px 0;
+    }
+    
+    .editable-section {
+        border-left: 3px solid $primary;
+        padding-left: 10px;
+    }
+    
+    .score-input {
+        max-width: 80px;
+    }
+}
+
+// Dynamic form rows
+.dynamic-form-container {
+    .dynamic-row {
+        margin-bottom: 10px;
+        
+        .remove-row {
+            margin-left: 10px;
+        }
+    }
+    
+    .add-row-btn {
+        margin-top: 5px;
+    }
+}
+
+// Mark summary tables
+.mark-summary {
+    th, td {
+        text-align: center;
+    }
+    
+    .total-row {
+        font-weight: bold;
+        background-color: rgba($primary, 0.1);
+    }
+    
+    .average-row {
+        font-weight: bold;
+        background-color: rgba($success, 0.1);
+    }
+}
+
 /* Login Page Styles */
 .login-container {
     display: flex;

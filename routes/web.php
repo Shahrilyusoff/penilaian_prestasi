@@ -51,10 +51,12 @@ Route::middleware('auth')->group(function () {
 // Evaluation Routes
 Route::middleware('auth')->group(function () {
     Route::resource('evaluations', EvaluationController::class);
-    Route::get('evaluations', [EvaluationController::class, 'index'])->name('evaluations.index');
-    Route::post('evaluations/{evaluation}/submit-pyd', [EvaluationController::class, 'submitPYD'])->name('evaluations.submit-pyd');
-    Route::post('evaluations/{evaluation}/submit-ppp', [EvaluationController::class, 'submitPPP'])->name('evaluations.submit-ppp');
-    Route::post('evaluations/{evaluation}/submit-ppk', [EvaluationController::class, 'submitPPK'])->name('evaluations.submit-ppk');
+    Route::post('evaluations/{evaluation}/submit', [EvaluationController::class, 'submit'])
+        ->name('evaluations.submit');
+    Route::post('evaluations/{evaluation}/reopen', [EvaluationController::class, 'reopen'])
+        ->name('evaluations.reopen');
+    Route::post('evaluations/{evaluation}/{bahagian}', [EvaluationController::class, 'updateBahagian'])
+        ->name('evaluations.update-bahagian');
 });
 
 Route::prefix('reports')->group(function () {

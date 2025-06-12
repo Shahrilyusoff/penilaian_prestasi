@@ -9,197 +9,202 @@ class EvaluationCriteriaTableSeeder extends Seeder
 {
     public function run()
     {
-        // Common criteria for all groups
         $commonCriteria = [
-            // Bahagian III - Penghasilan Kerja (50%)
             [
                 'bahagian' => 'III',
-                'kriteria' => 'Kuantiti Hasil Kerja',
+                'kriteria' => 'KUANTITI HASIL KERJA',
+                'description' => 'Kuantiti hasil kerja seperti jumlah, bilangan, kadar, kekerapan dan sebagainya berbanding dengan sasaran kuantiti kerja yang diterapkan',
                 'wajaran' => 50,
                 'kumpulan_pyd' => null
             ],
             [
                 'bahagian' => 'III',
-                'kriteria' => 'Kualiti Hasil Kerja',
+                'kriteria' => 'KUALITI HASIL KERJA',
+                'description' => "1. Dinilai dari segi kesempurnaan, teratur dan kemas.\n2. Dinilai dari segi usaha dan inisiatif untuk mencapai kesempurnaan hasil kerja",
                 'wajaran' => 50,
                 'kumpulan_pyd' => null
             ],
             [
                 'bahagian' => 'III',
-                'kriteria' => 'Ketepatan Masa',
+                'kriteria' => 'KETEPATAN MASA',
+                'description' => 'Kebolehan menghasilkan kerja atau melaksanakan tugas dalam tempoh masa yang ditetapkan',
                 'wajaran' => 50,
                 'kumpulan_pyd' => null
             ],
             [
                 'bahagian' => 'III',
-                'kriteria' => 'Keberkesanan Hasil Kerja',
+                'kriteria' => 'KEBERKESANAN HASIL KERJA',
+                'description' => "Dinilai dari segi memenuhi kehendak 'stake-holder' atau pelanggan",
                 'wajaran' => 50,
                 'kumpulan_pyd' => null
             ],
-            
-            // Bahagian VI - Kegiatan dan Sumbangan (5%)
             [
                 'bahagian' => 'VI',
                 'kriteria' => 'Kegiatan dan Sumbangan di Luar Tugas Rasmi',
+                'description' => 'Berasaskan maklumat di Bahagian II perenggan 1, Pegawai Penilai dikehendaki memberi penilaian dengan menggunakan skala 1 hingga 10. Tiada sebarang markah boleh diberikan (kosong) jika PYD tidak mencatat kegiatan atau sumbangannya.',
                 'wajaran' => 5,
                 'kumpulan_pyd' => null
             ],
         ];
 
-        // Criteria for Pengurusan dan Professional
         $pengurusanCriteria = [
-            // Bahagian IV - Pengetahuan dan Kemahiran (25%)
             [
                 'bahagian' => 'IV',
-                'kriteria' => 'Ilmu Pengetahuan dan Kemahiran dalam Bidang Kerja',
+                'kriteria' => 'ILMU PENGETAHUAN DAN KEMAHIRAN DALAM BIDANG KERJA',
+                'description' => 'Mempunyai ilmu pengetahuan dan kemahiran dalam menghasilkan kerja meliputi kebolehan mengenalpasti, menganalisis serta menyelesaikan masalah',
                 'wajaran' => 25,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Pengurusan dan Professional'
             ],
             [
                 'bahagian' => 'IV',
-                'kriteria' => 'Pelaksanaan Dasar, Peraturan dan Arahan Pentadbiran',
+                'kriteria' => 'PELAKSANAAN DASAR, PERATURAN DAN ARAHAN PENTADBIRAN',
+                'description' => 'Kebolehan menghayati dan melaksanakan dasar, peraturan dan arahan pentadbiran berkaitan dengan bidang tugasnya',
                 'wajaran' => 25,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Pengurusan dan Professional'
             ],
             [
                 'bahagian' => 'IV',
-                'kriteria' => 'Keberkesanan Komunikasi',
+                'kriteria' => 'KEBERKESANAN KOMUNIKASI',
+                'description' => "Kebolehan menyampaikan maksud, pendapat, kefahaman atau arahan secara lisan dan tulisan berkaitan dengan bidang tugas merangkumi penguasaan Bahasa melalui tulisan dan lisan dengan menggunakan tatabahasa dan persembahan yang baik",
                 'wajaran' => 25,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Pengurusan dan Professional'
             ],
-            
-            // Bahagian V - Kualiti Peribadi (20%)
             [
                 'bahagian' => 'V',
-                'kriteria' => 'Ciri-ciri Memimpin',
+                'kriteria' => 'CIRI-CIRI MEMIMPIN',
+                'description' => 'Mempunyai wawasan, komitmen, kebolehan membuat keputusan, menggerak dan memberi dorongan kepada pegawai kearah pencapaian objektif organisasi',
                 'wajaran' => 20,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Pengurusan dan Professional'
             ],
             [
                 'bahagian' => 'V',
-                'kriteria' => 'Kebolehan Mengelola',
+                'kriteria' => 'KEBOLEHAN MENGELOLA',
+                'description' => 'Keupayaan dan kebolehan menggembleng segala sumber dalam kawalannya seperti kewangan, tenaga manusia, peralatan dan maklumat bagi merancang, mengatur, membahagi dan mengendalikan sesuatu tugas untuk mencapai objektif organisasi',
                 'wajaran' => 20,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Pengurusan dan Professional'
             ],
             [
                 'bahagian' => 'V',
-                'kriteria' => 'Disiplin',
+                'kriteria' => 'DISIPLIN',
+                'description' => 'Mempunyai daya kawal diri dari segi mental dan fizikal termasuk mematuhi peraturan, menepati masa, menunaikan janji dan bersifat sabar',
                 'wajaran' => 20,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Pengurusan dan Professional'
             ],
             [
                 'bahagian' => 'V',
-                'kriteria' => 'Proaktif dan Inovatif',
+                'kriteria' => 'PROAKTIF DAN INOVATIF',
+                'description' => 'Kebolehan menjangka kemungkinan, mencipta dan mengeluarkan idea baru serta membuat pembaharuan bagi mempertingkatkan kualiti dan produktiviti organisasi',
                 'wajaran' => 20,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Pengurusan dan Professional'
             ],
             [
                 'bahagian' => 'V',
-                'kriteria' => 'Jalinan Hubungan dan Kerjasama',
+                'kriteria' => 'JALINAN HUBUNGAN DAN KERJASAMA',
+                'description' => 'Kebolehan pegawai dalam mewujudkan suasana kerjasama yang harmoni dan mesra serta boleh menyesuaikan diri dalam semua keadaan',
                 'wajaran' => 20,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Pengurusan dan Professional'
             ],
         ];
 
-        // Criteria for Sokongan (I)
         $sokongan1Criteria = [
-            // Bahagian IV - Kualiti Peribadi (25%)
             [
                 'bahagian' => 'IV',
-                'kriteria' => 'Kebolehan Mengelola',
+                'kriteria' => 'ILMU PENGETAHUAN DAN KEMAHIRAN DALAM BIDANG KERJA',
+                'description' => 'Mempunyai ilmu pengetahuan dan kemahiran/kepakaran dalam menghasilkan kerja meliputi kebolehan mengenalpasti,menganalisis serta menyelesaikan masalah',
                 'wajaran' => 25,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (I)'
             ],
             [
                 'bahagian' => 'IV',
-                'kriteria' => 'Disiplin',
+                'kriteria' => 'PELAKSANAAN DASAR, PERATURAN DAN ARAHAN PENTADBIRAN',
+                'description' => 'Kebolehan menghayati dan melaksanakan dasar, peraturan dan arahan pentadbiran berkaitan dengan bidang tugasnya',
                 'wajaran' => 25,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (I)'
             ],
             [
                 'bahagian' => 'IV',
-                'kriteria' => 'Proaktif dan Inovatif',
+                'kriteria' => 'KEBERKESANAN KOMUNIKASI',
+                'description' => 'Kebolehan menyampaikan maksud, pendapat, kefahaman atau arahan secara lisan dan tulisan berkaitan dengan bidang tugas merangkumi penguasaan bahasa melalui tulisan dan lisan dengan menggunakan tatabahasa dan persembahan yang baik',
                 'wajaran' => 25,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (I)'
             ],
-            [
-                'bahagian' => 'IV',
-                'kriteria' => 'Jalinan Hubungan dan Kerjasama',
-                'wajaran' => 25,
-                'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (I)'
-            ],
-            
-            // Bahagian V - Kualiti Peribadi (20%)
             [
                 'bahagian' => 'V',
-                'kriteria' => 'Kebolehan Mengelola',
+                'kriteria' => 'KEBOLEHAN MENGELOLA',
+                'description' => 'Keupayaan dan kebolehan menggembleng segala sumber dalam kawalannya seperti kewangan, tenaga manusia, peralatan dan maklumat bagi merancang, mengatur, membahagi dan mengendalikan sesuatu tugas untuk mencapai objektif organisasi',
                 'wajaran' => 20,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (I)'
             ],
             [
                 'bahagian' => 'V',
-                'kriteria' => 'Disiplin',
+                'kriteria' => 'DISIPLIN',
+                'description' => 'Mempunyai daya kawal diri dari segi mental dan fizikal termasuk mematuhi peraturan, menepati masa, menunaikan janji dan bersifat sabar',
                 'wajaran' => 20,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (I)'
             ],
             [
                 'bahagian' => 'V',
-                'kriteria' => 'Proaktif dan Inovatif',
+                'kriteria' => 'PROAKTIF DAN INOVATIF',
+                'description' => 'Kebolehan menjangka kemungkinan, mencipta dan mengeluarkan idea baru serta membuat pembaharuan bagi mempertingkatkan kualiti dan produktiviti organisasi',
                 'wajaran' => 20,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (I)'
             ],
             [
                 'bahagian' => 'V',
-                'kriteria' => 'Jalinan Hubungan dan Kerjasama',
+                'kriteria' => 'JALINAN HUBUNGAN DAN KERJASAMA',
+                'description' => 'Kebolehan pegawai dalam mewujudkan suasana kerjasama yang harmoni dan mesra serta boleh menyesuaikan diri dalam semua keadaan',
                 'wajaran' => 20,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (I)'
             ],
         ];
 
-        // Criteria for Sokongan (II)
         $sokongan2Criteria = [
-            // Bahagian IV - Pengetahuan dan Kemahiran (25%)
             [
                 'bahagian' => 'IV',
-                'kriteria' => 'Ilmu Pengetahuan dan Kemahiran dalam Bidang Kerja',
+                'kriteria' => 'KEBOLEHAN MENGELOLA',
+                'description' => 'Keupayaan dan kebolehan menggemleng segala sumber dalam kawalannya seperti kewangan, tenaga manusia, peralatan dan maklumat bagi merancang, mengatur, membahagi dan mengendalikan sesuatu tugas untuk mencapai objektif organisai',
                 'wajaran' => 25,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (II)'
             ],
             [
                 'bahagian' => 'IV',
-                'kriteria' => 'Pelaksanaan Peraturan dan Arahan Pentadbiran',
+                'kriteria' => 'DISIPLIN',
+                'description' => 'Mempunyai daya kawal diri dari segi mental dan fizikal termasuk mematuhi peraturan, menepati masa, menunaikan janji dan bersifat sabar',
                 'wajaran' => 25,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (II)'
             ],
             [
                 'bahagian' => 'IV',
-                'kriteria' => 'Keberkesanan Komunikasi',
+                'kriteria' => 'PROAKTIF DAN INOVATIF',
+                'description' => 'Kebolehan menjangka kemungkinan, mencipta dan mengeluarkan idea baru serta membuat pembaharuan bagi mempertingkatkan kualiti dan produktiviti organisasi',
                 'wajaran' => 25,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (II)'
             ],
-            
-            // Bahagian V - Kualiti Peribadi (20%)
+            [
+                'bahagian' => 'IV',
+                'kriteria' => 'JALINAN HUBUNGAN DAN KERJASAMA',
+                'description' => 'Kebolehan pegawai dalam mewujudkan suasana kerjasama yang harmoni dan mesra serta boleh menyesuaikan diri dalam semua keadaan',
+                'wajaran' => 25,
+                'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (II)'
+            ],
             [
                 'bahagian' => 'V',
-                'kriteria' => 'Kebolehan Mengelola',
+                'kriteria' => 'ILMU PENGETAHUAN DAN KEMAHIRAN DALAM BIDANG KERJA',
+                'description' => 'Mempunyai ilmu pengetahuan dan kemahiran dalam menghasilkan kerja meliputi kebolehan mengenalpasti, menganalisis serta menyelessaikan masalah',
                 'wajaran' => 20,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (II)'
             ],
             [
                 'bahagian' => 'V',
-                'kriteria' => 'Disiplin',
+                'kriteria' => 'PELAKSANAAN PERATURAN DAN ARAHAN',
+                'description' => 'Kebolehan menghayati dan melaksanakan, peraturan dan arahan pentadbiran berkaitan dengan bidang tugasnya',
                 'wajaran' => 20,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (II)'
             ],
             [
                 'bahagian' => 'V',
-                'kriteria' => 'Proaktif dan Inovatif',
-                'wajaran' => 20,
-                'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (II)'
-            ],
-            [
-                'bahagian' => 'V',
-                'kriteria' => 'Jalinan Hubungan dan Kerjasama',
+                'kriteria' => 'KEBERKESANAN KOMUNIKASI',
+                'description' => 'Kebolehan menyampaikan maksud, pendapat, kefahaman atau arahan',
                 'wajaran' => 20,
                 'kumpulan_pyd' => 'Pegawai Kumpulan Perkhidmatan Sokongan (II)'
             ],

@@ -690,8 +690,8 @@
                                 <tr>
                                     <th width="30%">1. Tempoh PYD bertugas di bawah pengawasan</th>
                                     <td>
-                                        Tahun: {{ $evaluation->tempoh_penilaian_ppp_mula ? $evaluation->tempoh_penilaian_ppp_mula->format('Y') : '-' }}<br>
-                                        Bulan: {{ $evaluation->tempoh_penilaian_ppp_mula ? $evaluation->tempoh_penilaian_ppp_mula->diffInMonths($evaluation->tempoh_penilaian_ppp_tamat) : '-' }} bulan
+                                        Tahun: {{ $evaluation->tempoh_penilaian_ppp_mula ?? '-' }}<br>
+                                        Bulan: {{ $evaluation->tempoh_penilaian_ppp_tamat ?? '-' }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -953,14 +953,14 @@
                         <label class="form-label">1. Tempoh PYD bertugas di bawah pengawasan</label>
                         <div class="row">
                             <div class="col-md-6">
-                                <label class="form-label">Tahun Mula</label>
-                                <input type="date" name="tempoh_penilaian_mula" class="form-control" 
-                                       value="{{ $evaluation->tempoh_penilaian_ppp_mula ? $evaluation->tempoh_penilaian_ppp_mula->format('Y-m-d') : '' }}" required>
+                                <label class="form-label">Tahun</label>
+                                <input type="number" name="tempoh_penilaian_mula" class="form-control" 
+                                    min="0" value="{{ $evaluation->tempoh_penilaian_ppp_mula ?? '' }}" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Tahun Tamat</label>
-                                <input type="date" name="tempoh_penilaian_tamat" class="form-control" 
-                                       value="{{ $evaluation->tempoh_penilaian_ppp_tamat ? $evaluation->tempoh_penilaian_ppp_tamat->format('Y-m-d') : '' }}" required>
+                                <label class="form-label">Bulan</label>
+                                <input type="number" name="tempoh_penilaian_tamat" class="form-control" 
+                                    min="0" max="11" value="{{ $evaluation->tempoh_penilaian_ppp_tamat ?? '' }}" required>
                             </div>
                         </div>
                     </div>
@@ -1000,14 +1000,14 @@
                         <label class="form-label">1. Tempoh PYD bertugas di bawah pengawasan</label>
                         <div class="row">
                             <div class="col-md-6">
-                                <label class="form-label">Tahun Mula</label>
-                                <input type="date" name="tempoh_penilaian_mula" class="form-control" 
-                                       value="{{ $evaluation->tempoh_penilaian_ppk_mula ? $evaluation->tempoh_penilaian_ppk_mula->format('Y-m-d') : '' }}" required>
+                                <label class="form-label">Tahun</label>
+                                <input type="number" name="tempoh_penilaian_mula" class="form-control" min="0"
+                                    value="{{ old('tempoh_penilaian_mula', $evaluation->tempoh_penilaian_ppk_mula) }}" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Tahun Tamat</label>
-                                <input type="date" name="tempoh_penilaian_tamat" class="form-control" 
-                                       value="{{ $evaluation->tempoh_penilaian_ppk_tamat ? $evaluation->tempoh_penilaian_ppk_tamat->format('Y-m-d') : '' }}" required>
+                                <label class="form-label">Bulan</label>
+                                <input type="number" name="tempoh_penilaian_tamat" class="form-control" min="0" max="11"
+                                    value="{{ old('tempoh_penilaian_tamat', $evaluation->tempoh_penilaian_ppk_tamat) }}" required>
                             </div>
                         </div>
                     </div>

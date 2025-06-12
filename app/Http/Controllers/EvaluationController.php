@@ -264,16 +264,16 @@ public function store(Request $request)
     protected function updateBahagianVIII(Request $request, Evaluation $evaluation, $user)
     {
         $request->validate([
-            'tempoh_penilaian_mula' => 'required|date',
-            'tempoh_penilaian_tamat' => 'required|date|after:tempoh_penilaian_mula',
+            'tempoh_penilaian_mula' => 'required|integer|min:0', // Years
+            'tempoh_penilaian_tamat' => 'required|integer|min:0|max:11', // Months
             'ulasan_keseluruhan' => 'required|string',
             'kemajuan_kerjaya' => 'required|string',
         ]);
 
         if ($user->isPPP()) {
             $evaluation->update([
-                'tempoh_penilaian_ppp_mula' => $request->tempoh_penilaian_mula,
-                'tempoh_penilaian_ppp_tamat' => $request->tempoh_penilaian_tamat,
+                'tempoh_penilaian_ppp_mula' => $request->tempoh_penilaian_mula, // e.g. 1 (years)
+                'tempoh_penilaian_ppp_tamat' => $request->tempoh_penilaian_tamat, // e.g. 3 (months)
                 'ulasan_keseluruhan_ppp' => $request->ulasan_keseluruhan,
                 'kemajuan_kerjaya_ppp' => $request->kemajuan_kerjaya,
             ]);
@@ -285,8 +285,8 @@ public function store(Request $request)
     protected function updateBahagianIX(Request $request, Evaluation $evaluation, $user)
     {
         $request->validate([
-            'tempoh_penilaian_mula' => 'required|date',
-            'tempoh_penilaian_tamat' => 'required|date|after:tempoh_penilaian_mula',
+            'tempoh_penilaian_mula' => 'required|integer|min:0', // Years
+            'tempoh_penilaian_tamat' => 'required|integer|min:0|max:11', // Months
             'ulasan_keseluruhan' => 'required|string',
         ]);
 

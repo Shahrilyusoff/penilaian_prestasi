@@ -1,3 +1,10 @@
+// Light color overrides
+$sidebar-width: 240px;
+$sidebar-bg: #f9f9f9;              // Very light grey background
+$sidebar-color: #444;              // Soft grey text
+$sidebar-active-bg: #efefef;       // Subtle highlight on hover/active
+$sidebar-active-color: #222;       // Slightly darker active text
+
 // Sidebar styling
 .sidebar {
     width: $sidebar-width;
@@ -10,36 +17,39 @@
     left: 0;
     z-index: 1000;
     padding-top: 56px; // Height of navbar
-    
+
+    border-right: none !important;
+    box-shadow: none !important;
+
     .sidebar-header {
         padding: 20px;
-        background-color: rgba(0, 0, 0, 0.2);
+        background-color: #ffffff; // Lighter header
     }
-    
+
     .sidebar-menu {
         padding-left: 0;
         list-style: none;
-        
+
         li {
             position: relative;
-            
+
             a {
                 padding: 12px 20px;
                 display: block;
                 color: $sidebar-color;
                 text-decoration: none;
                 transition: all 0.3s;
-                
+
                 &:hover {
                     color: $sidebar-active-color;
                     background-color: $sidebar-active-bg;
                 }
-                
+
                 i {
                     margin-right: 10px;
                 }
             }
-            
+
             &.active > a {
                 color: $sidebar-active-color;
                 background-color: $sidebar-active-bg;

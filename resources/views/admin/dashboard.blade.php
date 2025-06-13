@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-md-12">
-            <h2 class="fw-bold">Dashboard Pentadbir</h2>
+            <h4 class="fw-bold">Dashboard Pentadbir</h4>
         </div>
     </div>
 

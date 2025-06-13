@@ -7,7 +7,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-md-6">
-            <h2 class="fw-bold">Senarai SKT</h2>
+            <h4 class="fw-bold">Senarai SKT</h4>
         </div>
         <div class="col-md-6 text-end">
             <div class="dropdown d-inline-block me-2">

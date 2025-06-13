@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col-md-6">
-            <h2 class="fw-bold">Senarai Tempoh Penilaian</h2>
+            <h4 class="fw-bold">Senarai Tempoh Penilaian</h4>
         </div>
         <div class="col-md-6 text-end">
             <a href="{{ route('evaluation-periods.create') }}" class="btn btn-primary">

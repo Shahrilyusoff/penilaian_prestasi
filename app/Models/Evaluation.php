@@ -158,7 +158,6 @@ class Evaluation extends Model
             case 'IV':
             case 'V':
             case 'VI':
-            case 'VIII':
                 if ($user->isPPP() && $this->ppp_id === $user->id) {
                     return $this->status === self::STATUS_DRAFT_PPP;
                 }
@@ -166,9 +165,10 @@ class Evaluation extends Model
                     return $this->status === self::STATUS_DRAFT_PPK;
                 }
                 return false;
-            case 'VII':
+            case 'VIII':
+                return $user->isPPP() && $this->ppp_id === $user->id && $this->status === self::STATUS_DRAFT_PPP;
             case 'IX':
-                return false; // These are calculated/display only
+                return $user->isPPK() && $this->ppk_id === $user->id && $this->status === self::STATUS_DRAFT_PPK;
             default:
                 return false;
         }

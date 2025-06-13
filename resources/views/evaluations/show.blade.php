@@ -740,8 +740,8 @@
                                 <tr>
                                     <th width="30%">1. Tempoh PYD bertugas di bawah pengawasan</th>
                                     <td>
-                                        Tahun: {{ $evaluation->tempoh_penilaian_ppk_mula ? $evaluation->tempoh_penilaian_ppk_mula->format('Y') : '-' }}<br>
-                                        Bulan: {{ $evaluation->tempoh_penilaian_ppk_mula ? $evaluation->tempoh_penilaian_ppk_mula->diffInMonths($evaluation->tempoh_penilaian_ppk_tamat) : '-' }} bulan
+                                        Tahun: {{ $evaluation->tempoh_penilaian_ppk_mula ?? 0 }}<br>
+                                        Bulan: {{ $evaluation->tempoh_penilaian_ppk_tamat ?? 0 }} bulan
                                     </td>
                                 </tr>
                                 <tr>
